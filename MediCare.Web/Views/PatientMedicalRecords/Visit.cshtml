@@ -1,0 +1,73 @@
+@model MedicalRecord
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Visit details";
+    ViewData["ActiveNav"] = "records";
+    var sentPrescriptions = Model.Prescriptions.Where(p => p.Status == PrescriptionStatus.Sent).ToList();
+}
+
+<a class="mr-back-link" href="/Patient/MedicalRecords"><i class="bi bi-chevron-left"></i>Back to medical records</a>
+
+<section class="mr-hero mb-4">
+    <span class="mr-hero-icon"><i class="bi bi-journal-medical"></i></span>
+    <div class="flex-grow-1">
+        <h1 class="h4 fw-bold mb-1">@Model.Diagnosis</h1>
+        <div class="mr-hero-meta">
+            <span><i class="bi bi-heart-pulse"></i> @Model.Doctor.User.FullName &middot; @Model.Doctor.Specialization.Name</span>
+            <span><i class="bi bi-calendar3"></i> @Model.CreatedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
+        </div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Doctor's notes</h2>
+            <div class="mr-note-block">
+                <div class="mr-label">Symptoms</div>
+                <p class="mb-0 mr-prewrap">@Model.Symptoms</p>
+            </div>
+            <div class="mr-note-block">
+                <div class="mr-label">Diagnosis</div>
+                <p class="mb-0 fw-semibold">@Model.Diagnosis</p>
+            </div>
+            <div class="mr-note-block">
+                <div class="mr-label">Treatment plan</div>
+                <p class="mb-0 mr-prewrap">@(Model.TreatmentNotes ?? "—")</p>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-4">
+        <section class="mr-card mb-4">
+            <h2 class="mr-card-title mb-3">Files from this visit</h2>
+            @if (!Model.Documents.Any())
+            {
+                <p class="mr-muted small mb-0">No files.</p>
+            }
+            @foreach (var doc in Model.Documents)
+            {
+                <div class="mr-list-row">
+                    <span class="mr-file-icon"><i class="bi @MedicalRecordsDisplay.TypeIcon(doc.DocumentType.ToString())"></i></span>
+                    <a class="flex-grow-1 text-truncate mr-record-link" target="_blank" href="/Patient/MedicalRecords/Documents/@doc.Id/Download?inline=true">@doc.Title</a>
+                    <a class="mr-icon-link" href="/Patient/MedicalRecords/Documents/@doc.Id/Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                </div>
+            }
+        </section>
+
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Prescriptions</h2>
+            @if (sentPrescriptions.Count == 0)
+            {
+                <p class="mr-muted small mb-0">No prescriptions from this visit.</p>
+            }
+            @foreach (var rx in sentPrescriptions)
+            {
+                <div class="mr-list-row">
+                    <span class="mr-file-icon"><i class="bi bi-capsule"></i></span>
+                    <span class="flex-grow-1 text-truncate">@string.Join(", ", rx.Items.Select(i => i.MedicationName))</span>
+                    <a class="mr-icon-link" target="_blank" href="/Patient/Prescriptions/@rx.Id/Print" aria-label="Print prescription"><i class="bi bi-printer"></i></a>
+                </div>
+            }
+        </section>
+    </div>
+</div>

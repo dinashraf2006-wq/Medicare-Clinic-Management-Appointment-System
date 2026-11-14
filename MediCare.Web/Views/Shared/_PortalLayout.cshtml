@@ -1,0 +1,123 @@
+@*
+    Portal layout for the Medical Records & Prescriptions pages (Member 5).
+    Matches the Figma doctor portal (dark) and patient portal (light).
+    Set ViewData["Portal"] = "doctor" | "patient" (done by _DoctorPortalLayout / _PatientPortalLayout)
+    and ViewData["ActiveNav"] to highlight the sidebar item.
+    When the team builds a shared portal layout, these pages can switch to it.
+*@
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var portal = ViewData["Portal"] as string ?? "doctor";
+    var isDoctor = portal == "doctor";
+    var active = ViewData["ActiveNav"] as string ?? "";
+    var appUser = await UserManager.GetUserAsync(User);
+    var fullName = appUser?.FullName ?? User.Identity?.Name ?? "";
+    var roleLabel = isDoctor ? "Doctor" : "Patient";
+
+    // Items owned by other team members link to "#" until their pages exist.
+    var nav = isDoctor
+        ? new (string Key, string Icon, string Text, string Href)[]
+        {
+            ("dashboard", "bi-grid", "Dashboard", "#"),
+            ("schedule", "bi-calendar3", "My Schedule", "#"),
+            ("appointments", "bi-clock", "Appointments", "#"),
+            ("patients", "bi-people", "Patients", "#"),
+            ("records", "bi-file-earmark-medical", "Medical Records", "/Doctor/MedicalRecords"),
+            ("prescriptions", "bi-capsule", "Prescriptions", "/Doctor/Prescriptions"),
+            ("messages", "bi-chat-left", "Messages", "#"),
+            ("video", "bi-camera-video", "Video Consultations", "#"),
+            ("analytics", "bi-bar-chart", "Analytics", "#"),
+            ("settings", "bi-gear", "Settings", "#")
+        }
+        : new (string Key, string Icon, string Text, string Href)[]
+        {
+            ("dashboard", "bi-grid", "Dashboard", "#"),
+            ("appointments", "bi-calendar3", "My Appointments", "#"),
+            ("doctors", "bi-search", "Find Doctors", "#"),
+            ("records", "bi-file-earmark-medical", "Medical Records", "/Patient/MedicalRecords"),
+            ("prescriptions", "bi-capsule", "Prescriptions", "/Patient/Prescriptions"),
+            ("labs", "bi-eyedropper", "Lab Results", "#"),
+            ("billing", "bi-credit-card", "Billing & Payments", "#"),
+            ("messages", "bi-chat-left", "Messages", "#"),
+            ("articles", "bi-journal-text", "Health Articles", "#"),
+            ("settings", "bi-gear", "Settings", "#")
+        };
+}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="@(isDoctor ? "dark" : "light")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MediCare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/medical-records.css" asp-append-version="true" />
+</head>
+<body class="mr-portal @(isDoctor ? "mr-theme-dark" : "mr-theme-light")">
+<div class="mr-shell">
+    <aside class="mr-sidebar" id="mrSidebar">
+        <a class="mr-brand" href="#">
+            <span class="mr-brand-logo"><i class="bi bi-heart-pulse"></i></span>
+            <span>MediCare<span class="mr-brand-dot">.</span></span>
+        </a>
+        <nav class="mr-nav">
+            @foreach (var item in nav)
+            {
+                <a class="mr-nav-link @(item.Key == active ? "active" : "")" href="@item.Href">
+                    <i class="bi @item.Icon"></i><span>@item.Text</span>
+                </a>
+            }
+        </nav>
+        <div class="mr-sidebar-user">
+            <span class="mr-avatar" style="background:@MedicalRecordsDisplay.AvatarColor(fullName)">@MedicalRecordsDisplay.Initials(fullName)</span>
+            <div class="mr-sidebar-user-text">
+                <div class="fw-semibold text-truncate">@fullName</div>
+                <div class="mr-muted small">@roleLabel</div>
+            </div>
+        </div>
+    </aside>
+
+    <div class="mr-main">
+        <header class="mr-topbar">
+            <button class="btn mr-icon-btn d-lg-none" type="button" onclick="document.getElementById('mrSidebar').classList.toggle('open')" aria-label="Menu">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="mr-topbar-search d-none d-md-flex">
+                <i class="bi bi-search"></i>
+                <input type="search" placeholder="@(isDoctor ? "Search patients, appointments..." : "Search doctors, specialties...")" aria-label="Search" />
+            </div>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                <span class="mr-chip d-none d-md-inline-flex"><i class="bi bi-calendar3"></i>@DateTime.Now.ToString("ddd, MMM d, yyyy")</span>
+                <button class="btn mr-icon-btn" type="button" aria-label="Notifications"><i class="bi bi-bell"></i></button>
+                <div class="mr-topbar-user">
+                    <span class="mr-avatar mr-avatar-sm" style="background:@MedicalRecordsDisplay.AvatarColor(fullName)">@MedicalRecordsDisplay.Initials(fullName)</span>
+                    <div class="d-none d-sm-block lh-sm">
+                        <div class="fw-semibold small">@fullName</div>
+                        <div class="mr-muted" style="font-size:.7rem">@roleLabel</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="mr-content">
+            @if (TempData["ErrorMessage"] is string error)
+            {
+                <div class="alert alert-danger d-flex align-items-center gap-2"><i class="bi bi-exclamation-circle"></i>@error</div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+<partial name="_MedicalRecordsSuccessModal" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/medical-records.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,76 @@
+@model PatientMedicationDetailsViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = Model.Item.MedicationName;
+    ViewData["ActiveNav"] = "prescriptions";
+    var item = Model.Item;
+    var rx = item.Prescription;
+    var doctorName = rx.Doctor.User.FullName;
+}
+
+<a class="mr-back-link" href="/Patient/Prescriptions"><i class="bi bi-chevron-left"></i>Back to prescriptions</a>
+
+<section class="mr-hero mb-4">
+    <span class="mr-hero-icon"><i class="bi bi-capsule"></i></span>
+    <div class="flex-grow-1">
+        <h1 class="h3 fw-bold mb-1">@item.MedicationName</h1>
+        <div class="mr-hero-meta">
+            <span>@(item.Indication ?? "Medication") &middot; @item.DurationDays days &middot; Prescribed @((rx.SentAt ?? rx.CreatedAt).ToLocalTime().ToString("MMM d, yyyy"))</span>
+        </div>
+    </div>
+    <div class="mr-hero-supply">
+        <div class="small mb-1">@Model.Supply.DaysLeft days of supply left</div>
+        <div class="mr-progress mr-progress-light"><div style="width:@Model.Supply.PercentLeft%"></div></div>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Daily schedule</h2>
+            <div class="row g-2 mb-4">
+                @foreach (var slot in Model.Schedule)
+                {
+                    <div class="col-6 col-md-3">
+                        <div class="mr-slot @(slot.Active ? "active" : "")">
+                            <div class="fw-semibold small">@slot.Slot</div>
+                            <div class="small">@(slot.Active ? slot.Time : "—")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (item.Frequency == MedicationFrequency.AsNeeded)
+            {
+                <p class="mr-muted small">Take only when needed, as your doctor explained.</p>
+            }
+
+            <h2 class="mr-card-title mb-2">Instructions</h2>
+            <ul class="mr-checklist">
+                <li><i class="bi bi-check-circle"></i>@($"Take {item.Dose.ToLowerInvariant()} {item.Frequency.DisplayName().ToLowerInvariant()}{(item.Timing is null ? "" : ", " + item.Timing)}")</li>
+                @foreach (var line in Model.Instructions)
+                {
+                    <li><i class="bi bi-check-circle"></i>@line</li>
+                }
+            </ul>
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Manage</h2>
+            @* Refill, reminders and delivery are outside this phase; buttons match the design only. *@
+            <button type="button" class="btn mr-btn-primary w-100 mb-2" disabled title="Coming soon"><i class="bi bi-arrow-repeat me-1"></i>Request refill</button>
+            <button type="button" class="btn mr-btn-ghost w-100 mb-2" disabled title="Coming soon"><i class="bi bi-bell me-1"></i>Set reminder</button>
+            <button type="button" class="btn mr-btn-ghost w-100 mb-2" disabled title="Coming soon"><i class="bi bi-truck me-1"></i>Order delivery</button>
+            <a class="btn mr-btn-ghost w-100 mb-3" target="_blank" href="/Patient/Prescriptions/@rx.Id/Print"><i class="bi bi-printer me-1"></i>Print prescription</a>
+
+            <div class="mr-person">
+                <span class="mr-avatar mr-avatar-sm" style="background:@MedicalRecordsDisplay.AvatarColor(doctorName)">@MedicalRecordsDisplay.Initials(doctorName)</span>
+                <div class="lh-sm">
+                    <div class="fw-semibold small">@doctorName</div>
+                    <div class="mr-muted small">@rx.Doctor.Specialization.Name</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

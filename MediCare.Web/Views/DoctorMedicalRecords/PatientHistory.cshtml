@@ -1,0 +1,111 @@
+@model PatientHistoryViewModel
+@{
+    Layout = "_DoctorPortalLayout";
+    var h = Model.History;
+    var name = h.Patient.User.FullName;
+    ViewData["Title"] = name + " - History";
+    ViewData["ActiveNav"] = "records";
+}
+
+<a class="mr-back-link" href="/Doctor/MedicalRecords"><i class="bi bi-chevron-left"></i>Back to medical records</a>
+
+<div class="mr-page-header">
+    <div class="d-flex align-items-center gap-3">
+        <span class="mr-avatar mr-avatar-lg" style="background:@MedicalRecordsDisplay.AvatarColor(name)">@MedicalRecordsDisplay.Initials(name)</span>
+        <div>
+            <h1 class="mr-title mb-0">@name</h1>
+            <p class="mr-subtitle mb-0">Medical history</p>
+        </div>
+    </div>
+    <div class="mr-page-actions">
+        <a class="btn mr-btn-ghost" href="/Doctor/Prescriptions?patientId=@h.Patient.Id#new-prescription"><i class="bi bi-capsule me-1"></i>New prescription</a>
+        <a class="btn mr-btn-primary" href="/Doctor/MedicalRecords/Create?patientId=@h.Patient.Id"><i class="bi bi-journal-plus me-1"></i>New visit note</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <section class="mr-card mb-4">
+            <h2 class="mr-card-title mb-3">Patient details</h2>
+            <dl class="mr-dl">
+                <dt>Allergies</dt>
+                <dd class="@(string.IsNullOrWhiteSpace(h.Patient.Allergies) ? "" : "text-warning fw-semibold")">@(h.Patient.Allergies ?? "None recorded")</dd>
+                <dt>Medical history</dt>
+                <dd class="mr-prewrap">@(h.Patient.MedicalHistory ?? "None recorded")</dd>
+                <dt>Visits</dt>
+                <dd>@h.Records.Count</dd>
+            </dl>
+        </section>
+
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Documents</h2>
+            @if (h.Documents.Count == 0)
+            {
+                <p class="mr-muted small mb-0">No documents yet.</p>
+            }
+            @foreach (var doc in h.Documents)
+            {
+                <div class="mr-list-row">
+                    <span class="mr-file-icon"><i class="bi @MedicalRecordsDisplay.TypeIcon(doc.DocumentType.ToString())"></i></span>
+                    <a class="flex-grow-1 text-truncate mr-record-link" target="_blank" href="/Doctor/MedicalRecords/Documents/@doc.Id/Download?inline=true">
+                        @doc.Title
+                        <span class="mr-muted small d-block">@doc.DocumentType &middot; @MedicalRecordsDisplay.FriendlyDate(doc.UploadedAt)</span>
+                    </a>
+                    <a class="mr-icon-link" href="/Doctor/MedicalRecords/Documents/@doc.Id/Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                </div>
+            }
+        </section>
+    </div>
+
+    <div class="col-lg-8">
+        <section class="mr-card mb-4">
+            <h2 class="mr-card-title mb-3">Visit timeline</h2>
+            @if (h.Records.Count == 0)
+            {
+                <p class="mr-muted small mb-0">No visit notes yet.</p>
+            }
+            <ol class="mr-timeline">
+                @foreach (var r in h.Records)
+                {
+                    <li>
+                        <a class="mr-timeline-item" href="/Doctor/MedicalRecords/@r.Id">
+                            <div class="d-flex justify-content-between gap-2">
+                                <span class="fw-semibold">@r.Diagnosis</span>
+                                <span class="mr-muted small text-nowrap">@MedicalRecordsDisplay.FriendlyDate(r.CreatedAt)</span>
+                            </div>
+                            <div class="mr-muted small">@r.Doctor.User.FullName &middot; @r.Doctor.Specialization.Name</div>
+                            <div class="small mt-1 text-truncate">@r.Symptoms</div>
+                        </a>
+                    </li>
+                }
+            </ol>
+        </section>
+
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Prescriptions</h2>
+            @if (h.Prescriptions.Count == 0)
+            {
+                <p class="mr-muted small mb-0">No prescriptions yet.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table mr-table align-middle mb-0">
+                        <thead><tr><th>Medication</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                        @foreach (var rx in h.Prescriptions)
+                        {
+                            <tr>
+                                <td><a class="mr-record-link" href="/Doctor/Prescriptions/@rx.Id">@string.Join(", ", rx.Items.Select(i => i.MedicationName))</a></td>
+                                <td class="mr-muted">@rx.Doctor.User.FullName</td>
+                                <td class="mr-muted">@MedicalRecordsDisplay.FriendlyDate(rx.SentAt ?? rx.CreatedAt)</td>
+                                <td><span class="mr-badge @MedicalRecordsDisplay.StatusBadgeClass(rx.Status.ToString())">@rx.Status</span></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>

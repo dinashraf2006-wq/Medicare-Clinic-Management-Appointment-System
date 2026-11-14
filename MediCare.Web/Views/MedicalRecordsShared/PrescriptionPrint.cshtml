@@ -1,0 +1,110 @@
+@model Prescription
+@{
+    Layout = null;
+    var date = (Model.SentAt ?? Model.CreatedAt).ToLocalTime();
+    var isDraft = Model.Status == PrescriptionStatus.Draft;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prescription #@Model.Id - @Model.Patient.User.FullName</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/prescription-print.css" asp-append-version="true" />
+</head>
+<body>
+<div class="toolbar no-print">
+    <button type="button" onclick="window.print()">Print / Save as PDF</button>
+    <button type="button" class="secondary" onclick="window.close()">Close</button>
+</div>
+
+<article class="sheet @(isDraft ? "draft" : "")">
+    <header class="sheet-header">
+        <div class="brand">
+            <span class="logo">+</span>
+            <div>
+                <div class="brand-name">MediCare Clinic</div>
+                <div class="muted">Digital prescription</div>
+            </div>
+        </div>
+        <div class="doctor">
+            <div class="doctor-name">@Model.Doctor.User.FullName</div>
+            <div class="muted">@Model.Doctor.Specialization.Name</div>
+        </div>
+    </header>
+
+    <section class="info-grid">
+        <div>
+            <div class="label">Patient</div>
+            <div class="value">@Model.Patient.User.FullName</div>
+        </div>
+        <div>
+            <div class="label">Date</div>
+            <div class="value">@date.ToString("MMMM d, yyyy")</div>
+        </div>
+        <div>
+            <div class="label">Prescription no.</div>
+            <div class="value">RX-@Model.Id.ToString("D6")</div>
+        </div>
+        <div>
+            <div class="label">Allergies</div>
+            <div class="value">@(Model.Patient.Allergies ?? "None recorded")</div>
+        </div>
+    </section>
+
+    <div class="rx-symbol">&#8478;</div>
+
+    <table class="meds">
+        <thead>
+        <tr><th>#</th><th>Medication</th><th>Dose</th><th>How often</th><th>Duration</th></tr>
+        </thead>
+        <tbody>
+        @{ var n = 1; }
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@(n++)</td>
+                <td>
+                    <strong>@item.MedicationName</strong>
+                    @if (item.Indication is not null) { <div class="muted">For: @item.Indication</div> }
+                    @foreach (var line in MedicalRecordsDisplay.SplitLines(item.Instructions))
+                    {
+                        <div class="instruction">&bull; @line</div>
+                    }
+                </td>
+                <td>@(item.Dose + (item.Timing is null ? "" : ", " + item.Timing))</td>
+                <td>@item.Frequency.DisplayName()</td>
+                <td>@item.DurationDays days</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <section class="notes">
+            <div class="label">Notes</div>
+            <p>@Model.Notes</p>
+        </section>
+    }
+
+    <footer class="sheet-footer">
+        <div class="signature">
+            <div class="line"></div>
+            <div class="muted">Doctor's signature</div>
+        </div>
+        <div class="muted small">
+            @if (isDraft)
+            {
+                <strong>DRAFT - not valid for dispensing.</strong>
+            }
+            else
+            {
+                <span>Issued electronically on @date.ToString("MMM d, yyyy h:mm tt")</span>
+            }
+        </div>
+    </footer>
+</article>
+</body>
+</html>

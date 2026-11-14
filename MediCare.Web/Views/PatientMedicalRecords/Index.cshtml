@@ -1,0 +1,131 @@
+@model PatientRecordsIndexViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Medical Records";
+    ViewData["ActiveNav"] = "records";
+    ViewData["UploadAction"] = "/Patient/MedicalRecords/Upload";
+    ViewData["UploadPatients"] = null;
+
+    var s = Model.Stats;
+    var tabs = new[] { ("all", "All"), ("reports", "Reports"), ("imaging", "Imaging"), ("discharge", "Discharge") };
+    var stats = new[]
+    {
+        ("bi-file-earmark-text", "stat-blue", "Reports", s.Reports.ToString(), $"{s.ReportsThisMonth} added this month"),
+        ("bi-eyedropper", "stat-purple", "Lab results", s.LabResults.ToString(), $"{s.LabResultsThisMonth} new"),
+        ("bi-activity", "stat-teal", "Visits", s.Visits.ToString(), s.FirstVisitYear is null ? "No visits yet" : $"Since {s.FirstVisitYear}"),
+        ("bi-shield-check", "stat-green", "Shared securely", s.DoctorsWithAccess.ToString(), "With your doctors")
+    };
+}
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">Medical Records</h1>
+        <p class="mr-subtitle">All your reports and documents in one place.</p>
+    </div>
+    <div class="mr-page-actions">
+        <form method="get" class="mr-search" role="search">
+            <input type="hidden" name="filter" value="@Model.Filter" />
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="@Model.Search" placeholder="Search records..." aria-label="Search records" />
+        </form>
+        <button type="button" class="btn mr-btn-primary" data-bs-toggle="modal" data-bs-target="#mrUploadModal">
+            <i class="bi bi-upload me-1"></i>Upload
+        </button>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    @foreach (var (icon, color, label, value, hint) in stats)
+    {
+        <div class="col-6 col-xl-3">
+            <div class="mr-card mr-stat">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="mr-stat-icon @color"><i class="bi @icon"></i></span>
+                    <span class="mr-muted small">@label</span>
+                </div>
+                <div class="mr-stat-value">@value</div>
+                <div class="mr-muted small">@hint</div>
+            </div>
+        </div>
+    }
+</div>
+
+<section class="mr-card mb-4">
+    <div class="mr-card-header">
+        <h2 class="mr-card-title">Documents</h2>
+        <nav class="mr-tabs" aria-label="Filter documents">
+            @foreach (var (key, text) in tabs)
+            {
+                var tabUrl = "?filter=" + key + (string.IsNullOrEmpty(Model.Search) ? "" : "&q=" + Uri.EscapeDataString(Model.Search));
+                <a class="mr-tab @(Model.Filter == key ? "active" : "")" href="@tabUrl">@text</a>
+            }
+        </nav>
+    </div>
+
+    @if (Model.Documents.Count == 0)
+    {
+        <div class="mr-empty">
+            <i class="bi bi-folder2-open"></i>
+            <p class="mb-1 fw-semibold">No documents yet</p>
+            <p class="mr-muted small mb-0">Files your doctors add, or that you upload, will appear here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table mr-table align-middle mb-0">
+                <thead><tr><th>Document</th><th>Type</th><th>Doctor</th><th>Date</th><th class="text-end"><span class="visually-hidden">Download</span></th></tr></thead>
+                <tbody>
+                @foreach (var doc in Model.Documents)
+                {
+                    var type = doc.DocumentType.ToString();
+                    <tr>
+                        <td>
+                            <a class="mr-record-link" target="_blank" href="/Patient/MedicalRecords/Documents/@doc.Id/Download?inline=true">
+                                <span class="mr-file-icon"><i class="bi @MedicalRecordsDisplay.TypeIcon(type)"></i></span>
+                                <span class="text-truncate">@doc.Title</span>
+                            </a>
+                        </td>
+                        <td><span class="mr-badge @MedicalRecordsDisplay.TypeBadgeClass(type)">@type</span></td>
+                        <td class="mr-muted">@(doc.Doctor?.User.FullName ?? "Uploaded by you")</td>
+                        <td class="mr-muted">@MedicalRecordsDisplay.FriendlyDate(doc.UploadedAt)</td>
+                        <td class="text-end">
+                            <a class="mr-icon-link" href="/Patient/MedicalRecords/Documents/@doc.Id/Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="mr-card">
+    <h2 class="mr-card-title mb-3">Visit history</h2>
+    @if (Model.Visits.Count == 0)
+    {
+        <p class="mr-muted small mb-0">Notes from your doctor visits will appear here.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table mr-table align-middle mb-0">
+                <thead><tr><th>Diagnosis</th><th>Doctor</th><th>Specialty</th><th>Date</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var v in Model.Visits)
+                {
+                    <tr class="mr-row-link" data-href="/Patient/MedicalRecords/Visits/@v.Id">
+                        <td class="fw-semibold"><a class="mr-record-link" href="/Patient/MedicalRecords/Visits/@v.Id">@v.Diagnosis</a></td>
+                        <td>@v.Doctor.User.FullName</td>
+                        <td class="mr-muted">@v.Doctor.Specialization.Name</td>
+                        <td class="mr-muted">@MedicalRecordsDisplay.FriendlyDate(v.CreatedAt)</td>
+                        <td class="text-end"><i class="bi bi-chevron-right mr-muted"></i></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<partial name="_UploadDocumentModal" model="Model.Upload" />

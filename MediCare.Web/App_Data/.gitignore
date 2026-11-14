@@ -1,0 +1,3 @@
+# Uploaded medical files are private patient data: never commit them.
+*
+!.gitignore

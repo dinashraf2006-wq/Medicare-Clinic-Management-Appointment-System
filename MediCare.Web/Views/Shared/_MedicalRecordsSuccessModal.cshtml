@@ -1,0 +1,14 @@
+@* Confirmation dialog shown after an upload / save (matches the "File uploaded" dialog in Figma). *@
+@if (TempData["SuccessTitle"] is string title)
+{
+    <div class="modal fade" id="mrSuccessModal" tabindex="-1" aria-hidden="true" data-mr-autoshow="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content mr-modal text-center p-4">
+                <span class="mr-success-icon mx-auto mb-3"><i class="bi bi-check2"></i></span>
+                <h2 class="h6 fw-bold mb-1">@title</h2>
+                <p class="mr-muted small mb-3">@TempData["SuccessMessage"]</p>
+                <button type="button" class="btn mr-btn-primary w-100" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+}

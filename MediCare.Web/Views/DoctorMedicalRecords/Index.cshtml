@@ -1,0 +1,103 @@
+@model DoctorRecordsIndexViewModel
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Medical Records";
+    ViewData["ActiveNav"] = "records";
+    ViewData["UploadAction"] = "/Doctor/MedicalRecords/Upload";
+    ViewData["UploadPatients"] = Model.Patients;
+
+    var tabs = new[] { ("all", "All"), ("ecg", "ECG"), ("echo", "Echo"), ("lab", "Lab"), ("notes", "Notes") };
+}
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">Medical Records</h1>
+        <p class="mr-subtitle">Reports, imaging and notes for your patients.</p>
+    </div>
+    <div class="mr-page-actions">
+        <form method="get" class="mr-search" role="search">
+            <input type="hidden" name="filter" value="@Model.Filter" />
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="@Model.Search" placeholder="Search records..." aria-label="Search records" />
+        </form>
+        <a class="btn mr-btn-ghost" href="/Doctor/MedicalRecords/Create"><i class="bi bi-journal-plus me-1"></i>New visit note</a>
+        <button type="button" class="btn mr-btn-primary" data-bs-toggle="modal" data-bs-target="#mrUploadModal">
+            <i class="bi bi-upload me-1"></i>Upload
+        </button>
+    </div>
+</div>
+
+<section class="mr-card">
+    <div class="mr-card-header">
+        <h2 class="mr-card-title">Recent records</h2>
+        <nav class="mr-tabs" aria-label="Filter records">
+            @foreach (var (key, text) in tabs)
+            {
+                var tabUrl = "?filter=" + key + (string.IsNullOrEmpty(Model.Search) ? "" : "&q=" + Uri.EscapeDataString(Model.Search));
+                <a class="mr-tab @(Model.Filter == key ? "active" : "")" href="@tabUrl">@text</a>
+            }
+        </nav>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="mr-empty">
+            <i class="bi bi-folder2-open"></i>
+            <p class="mb-1 fw-semibold">No records found</p>
+            <p class="mr-muted small mb-0">Upload a file or write a visit note to get started.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table mr-table align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Record</th>
+                    <th>Patient</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th class="text-end"><span class="visually-hidden">Actions</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    var isNote = item.Kind == MediCare.Services.MedicalRecords.RecordFeedKind.ClinicalNote;
+                    var openUrl = isNote
+                        ? $"/Doctor/MedicalRecords/{item.Id}"
+                        : $"/Doctor/MedicalRecords/Documents/{item.Id}/Download?inline=true";
+                    <tr>
+                        <td>
+                            <a class="mr-record-link" href="@openUrl" target="@(isNote ? "_self" : "_blank")">
+                                <span class="mr-file-icon"><i class="bi @(isNote ? "bi-journal-medical" : MedicalRecordsDisplay.TypeIcon(item.TypeLabel))"></i></span>
+                                <span class="text-truncate">@item.Title</span>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="mr-person" href="/Doctor/MedicalRecords/Patient/@item.PatientId" title="View patient history">
+                                <span class="mr-avatar mr-avatar-xs" style="background:@MedicalRecordsDisplay.AvatarColor(item.PatientName)">@MedicalRecordsDisplay.Initials(item.PatientName)</span>
+                                @item.PatientName
+                            </a>
+                        </td>
+                        <td><span class="mr-badge @MedicalRecordsDisplay.TypeBadgeClass(item.TypeLabel)">@item.TypeLabel</span></td>
+                        <td class="mr-muted">@MedicalRecordsDisplay.FriendlyDate(item.Date)</td>
+                        <td class="text-end">
+                            @if (isNote)
+                            {
+                                <a class="mr-icon-link" href="@openUrl" title="Open note" aria-label="Open note"><i class="bi bi-chevron-right"></i></a>
+                            }
+                            else
+                            {
+                                <a class="mr-icon-link" href="/Doctor/MedicalRecords/Documents/@item.Id/Download" title="Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<partial name="_UploadDocumentModal" model="Model.Upload" />

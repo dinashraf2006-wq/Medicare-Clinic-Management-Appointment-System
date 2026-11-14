@@ -1,0 +1,109 @@
+@model MedicalRecord
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Visit note";
+    ViewData["ActiveNav"] = "records";
+
+    var currentDoctorId = (int)ViewData["CurrentDoctorId"]!;
+    var isMine = Model.DoctorId == currentDoctorId;
+    var patientName = Model.Patient.User.FullName;
+
+    ViewData["UploadAction"] = "/Doctor/MedicalRecords/Upload";
+    ViewData["UploadPatients"] = new List<PatientOption> { new() { Id = Model.PatientId, Name = patientName } };
+    var upload = new UploadDocumentViewModel
+    {
+        PatientId = Model.PatientId,
+        MedicalRecordId = Model.Id,
+        DocumentType = DocumentType.Imaging,
+        ReturnUrl = $"/Doctor/MedicalRecords/{Model.Id}"
+    };
+}
+
+<a class="mr-back-link" href="/Doctor/MedicalRecords"><i class="bi bi-chevron-left"></i>Back to medical records</a>
+
+<section class="mr-hero mb-4">
+    <span class="mr-hero-icon"><i class="bi bi-journal-medical"></i></span>
+    <div class="flex-grow-1">
+        <h1 class="h4 fw-bold mb-1">@Model.Diagnosis</h1>
+        <div class="mr-hero-meta">
+            <span><i class="bi bi-person"></i> @patientName</span>
+            <span><i class="bi bi-calendar3"></i> @Model.CreatedAt.ToLocalTime().ToString("MMM d, yyyy · h:mm tt")</span>
+            <span><i class="bi bi-heart-pulse"></i> @Model.Doctor.User.FullName</span>
+        </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn mr-btn-ghost-light" href="/Doctor/MedicalRecords/Patient/@Model.PatientId"><i class="bi bi-clock-history me-1"></i>Patient history</a>
+        @if (isMine)
+        {
+            <a class="btn mr-btn-light" href="/Doctor/Prescriptions?patientId=@Model.PatientId&recordId=@Model.Id#new-prescription"><i class="bi bi-capsule me-1"></i>Write prescription</a>
+        }
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Clinical notes</h2>
+
+            <div class="mr-note-block">
+                <div class="mr-label">Symptoms</div>
+                <p class="mb-0 mr-prewrap">@Model.Symptoms</p>
+            </div>
+            <div class="mr-note-block">
+                <div class="mr-label">Diagnosis</div>
+                <p class="mb-0 fw-semibold">@Model.Diagnosis</p>
+            </div>
+            <div class="mr-note-block">
+                <div class="mr-label">Treatment notes</div>
+                <p class="mb-0 mr-prewrap">@(Model.TreatmentNotes ?? "—")</p>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <section class="mr-card mb-4">
+            <div class="mr-card-header">
+                <h2 class="mr-card-title">Attachments</h2>
+                <button type="button" class="btn btn-sm mr-btn-ghost" data-bs-toggle="modal" data-bs-target="#mrUploadModal">
+                    <i class="bi bi-plus-lg"></i> Add
+                </button>
+            </div>
+            @if (!Model.Documents.Any())
+            {
+                <p class="mr-muted small mb-0">No files attached to this visit.</p>
+            }
+            @foreach (var doc in Model.Documents.OrderByDescending(d => d.UploadedAt))
+            {
+                <div class="mr-list-row">
+                    <span class="mr-file-icon"><i class="bi @MedicalRecordsDisplay.TypeIcon(doc.DocumentType.ToString())"></i></span>
+                    <a class="flex-grow-1 text-truncate mr-record-link" target="_blank" href="/Doctor/MedicalRecords/Documents/@doc.Id/Download?inline=true">
+                        @doc.Title
+                        <span class="mr-muted small d-block">@doc.DocumentType &middot; @MedicalRecordsDisplay.FileSize(doc.FileSize)</span>
+                    </a>
+                    <a class="mr-icon-link" href="/Doctor/MedicalRecords/Documents/@doc.Id/Download" aria-label="Download"><i class="bi bi-download"></i></a>
+                </div>
+            }
+        </section>
+
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Prescriptions</h2>
+            @if (!Model.Prescriptions.Any())
+            {
+                <p class="mr-muted small mb-0">No prescription written for this visit.</p>
+            }
+            @foreach (var rx in Model.Prescriptions.OrderByDescending(p => p.CreatedAt))
+            {
+                <a class="mr-list-row mr-record-link" href="/Doctor/Prescriptions/@rx.Id">
+                    <span class="mr-file-icon"><i class="bi bi-capsule"></i></span>
+                    <span class="flex-grow-1 text-truncate">
+                        @string.Join(", ", rx.Items.Select(i => i.MedicationName))
+                        <span class="mr-muted small d-block">@rx.Status &middot; @MedicalRecordsDisplay.FriendlyDate(rx.CreatedAt)</span>
+                    </span>
+                    <i class="bi bi-chevron-right mr-muted"></i>
+                </a>
+            }
+        </section>
+    </div>
+</div>
+
+<partial name="_UploadDocumentModal" model="upload" />

@@ -1,0 +1,41 @@
+@model MediCare.Web.DevTools.DemoUser[]
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Demo sign in</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light">
+<div class="container py-5" style="max-width:560px">
+    <h1 class="h4 mb-1">Demo sign in (Development only)</h1>
+    <p class="text-muted small mb-4">Temporary page for testing Medical Records &amp; Prescriptions until the real login page is ready.</p>
+
+    <div class="list-group mb-4">
+        @foreach (var u in Model)
+        {
+            <form method="post" action="/dev/login" class="list-group-item d-flex justify-content-between align-items-center">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="email" value="@u.Email" />
+                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                <div>
+                    <div class="fw-semibold">@u.Name</div>
+                    <div class="small text-muted">@u.Email &middot; @u.Role</div>
+                </div>
+                <button class="btn btn-sm btn-primary">Sign in</button>
+            </form>
+        }
+    </div>
+
+    <form method="post" action="/dev/logout">
+        @Html.AntiForgeryToken()
+        <button class="btn btn-sm btn-outline-secondary">Sign out</button>
+    </form>
+</div>
+</body>
+</html>

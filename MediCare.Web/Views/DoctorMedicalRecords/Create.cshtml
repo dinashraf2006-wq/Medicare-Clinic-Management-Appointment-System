@@ -1,0 +1,109 @@
+@model ClinicalNoteViewModel
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "New visit note";
+    ViewData["ActiveNav"] = "records";
+    var types = Enum.GetValues<DocumentType>();
+}
+
+<a class="mr-back-link" href="/Doctor/MedicalRecords"><i class="bi bi-chevron-left"></i>Back to medical records</a>
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">New visit note</h1>
+        <p class="mr-subtitle">Record the symptoms, diagnosis and treatment for this visit.</p>
+    </div>
+</div>
+
+<form method="post" action="/Doctor/MedicalRecords/Create" enctype="multipart/form-data" class="row g-4">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="AppointmentId" />
+
+    <div class="col-lg-8">
+        <section class="mr-card">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger small mb-3" role="alert"></div>
+
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <label asp-for="PatientId" class="form-label small"></label>
+                    @if (Model.AppointmentId.HasValue)
+                    {
+                        <input type="hidden" asp-for="PatientId" />
+                        <div class="form-control mr-input" aria-readonly="true">
+                            @(Model.Patients.FirstOrDefault(p => p.Id == Model.PatientId)?.Name ?? "Patient")
+                        </div>
+                    }
+                    else
+                    {
+                        <select asp-for="PatientId" class="form-select mr-input"
+                                asp-items="@(new SelectList(Model.Patients, nameof(PatientOption.Id), nameof(PatientOption.Name)))">
+                            <option value="">Choose a patient...</option>
+                        </select>
+                    }
+                    <span asp-validation-for="PatientId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small">Visit</label>
+                    <div class="form-control mr-input mr-muted">
+                        <i class="bi bi-calendar3 me-1"></i>@(Model.AppointmentLabel ?? "Walk-in / not linked to an appointment")
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Symptoms" class="form-label small"></label>
+                    <textarea asp-for="Symptoms" class="form-control mr-input" rows="3"
+                              placeholder="e.g. Chest discomfort on exertion for 2 weeks, shortness of breath..."></textarea>
+                    <span asp-validation-for="Symptoms" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Diagnosis" class="form-label small"></label>
+                    <input asp-for="Diagnosis" class="form-control mr-input" placeholder="e.g. Essential hypertension" />
+                    <span asp-validation-for="Diagnosis" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="TreatmentNotes" class="form-label small"></label>
+                    <textarea asp-for="TreatmentNotes" class="form-control mr-input" rows="5"
+                              placeholder="Vitals, plan, lifestyle advice, follow-up..."></textarea>
+                    <span asp-validation-for="TreatmentNotes" class="text-danger small"></span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <section class="mr-card mb-4">
+            <h2 class="mr-card-title mb-3">Attachments</h2>
+
+            <label asp-for="AttachmentType" class="form-label small"></label>
+            <select asp-for="AttachmentType" class="form-select mr-input mb-3">
+                @foreach (var t in types)
+                {
+                    <option value="@t">@t</option>
+                }
+            </select>
+
+            <label class="mr-dropzone" for="Attachments">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <span class="fw-semibold" data-mr-file-label>X-rays, ECGs, reports...</span>
+                <span class="mr-muted small">Up to 5 files &middot; PDF, JPG, PNG, DICOM &middot; 10 MB each</span>
+                <input type="file" id="Attachments" name="Attachments" multiple accept=".pdf,.jpg,.jpeg,.png,.dcm" class="visually-hidden" />
+            </label>
+            <span asp-validation-for="Attachments" class="text-danger small d-block mt-2"></span>
+        </section>
+
+        <section class="mr-card">
+            <div class="form-check mb-3">
+                <input asp-for="AddPrescription" class="form-check-input" />
+                <label asp-for="AddPrescription" class="form-check-label small"></label>
+            </div>
+            <button type="submit" class="btn mr-btn-primary w-100"><i class="bi bi-check2 me-1"></i>Save visit note</button>
+            <a href="/Doctor/MedicalRecords" class="btn mr-btn-ghost w-100 mt-2">Cancel</a>
+        </section>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

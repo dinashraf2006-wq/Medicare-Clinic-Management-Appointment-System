@@ -1,0 +1,77 @@
+@model PrescriptionDetailsViewModel
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Prescription";
+    ViewData["ActiveNav"] = "prescriptions";
+    var rx = Model.Prescription;
+    var patientName = rx.Patient.User.FullName;
+}
+
+<a class="mr-back-link" href="/Doctor/Prescriptions"><i class="bi bi-chevron-left"></i>Back to prescriptions</a>
+
+<section class="mr-hero mb-4">
+    <span class="mr-hero-icon"><i class="bi bi-capsule"></i></span>
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <h1 class="h4 fw-bold mb-0">Prescription #@rx.Id</h1>
+            <span class="mr-badge @MedicalRecordsDisplay.StatusBadgeClass(Model.StatusLabel)">@Model.StatusLabel</span>
+        </div>
+        <div class="mr-hero-meta">
+            <span><i class="bi bi-person"></i> <a class="text-reset" href="/Doctor/MedicalRecords/Patient/@rx.PatientId">@patientName</a></span>
+            <span><i class="bi bi-calendar3"></i> @((rx.SentAt ?? rx.CreatedAt).ToLocalTime().ToString("MMM d, yyyy"))</span>
+            <span><i class="bi bi-heart-pulse"></i> @rx.Doctor.User.FullName</span>
+            @if (rx.MedicalRecordId.HasValue)
+            {
+                <span><i class="bi bi-journal-medical"></i> <a class="text-reset" href="/Doctor/MedicalRecords/@rx.MedicalRecordId">Visit note</a></span>
+            }
+        </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn mr-btn-ghost-light" href="/Doctor/Prescriptions/@rx.Id/Print" target="_blank"><i class="bi bi-printer me-1"></i>Print</a>
+        @if (Model.CanEdit)
+        {
+            <form method="post" action="/Doctor/Prescriptions/@rx.Id/Delete" onsubmit="return confirm('Delete this draft?');">
+                @Html.AntiForgeryToken()
+                <button class="btn mr-btn-ghost-light"><i class="bi bi-trash me-1"></i>Delete draft</button>
+            </form>
+            <form method="post" action="/Doctor/Prescriptions/@rx.Id/Send">
+                @Html.AntiForgeryToken()
+                <button class="btn mr-btn-light"><i class="bi bi-send me-1"></i>Send to patient</button>
+            </form>
+        }
+    </div>
+</section>
+
+<section class="mr-card">
+    <h2 class="mr-card-title mb-3">Medications</h2>
+    <div class="table-responsive">
+        <table class="table mr-table align-middle mb-0">
+            <thead>
+            <tr><th>Medication</th><th>Dose</th><th>Frequency</th><th>Duration</th><th>Instructions</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var item in rx.Items)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@item.MedicationName</div>
+                        @if (item.Indication is not null) { <div class="mr-muted small">@item.Indication</div> }
+                    </td>
+                    <td>@item.Dose @(item.Timing is null ? "" : "· " + item.Timing)</td>
+                    <td>@item.Frequency.DisplayName()</td>
+                    <td>@item.DurationDays days</td>
+                    <td class="small mr-prewrap">@(item.Instructions ?? "—")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(rx.Notes))
+    {
+        <div class="mr-note-block mt-3 mb-0">
+            <div class="mr-label">Notes for the patient</div>
+            <p class="mb-0 mr-prewrap">@rx.Notes</p>
+        </div>
+    }
+</section>
