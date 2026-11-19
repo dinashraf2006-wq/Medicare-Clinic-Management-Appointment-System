@@ -1,0 +1,90 @@
+/* ==========================================================================
+   MediCare - Appointment Booking (Member 3)
+   Builds on the portal variables from medical-records.css (--mr-*).
+   Everything is prefixed bk- so it can't clash with teammates' CSS.
+   ========================================================================== */
+
+.badge-status-cancel { background: rgba(225, 80, 80, .13); color: #d64545; }
+
+/* ---------- doctor picker ---------- */
+.bk-doctor-card { display: flex; flex-direction: column; }
+.bk-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ---------- calendar ---------- */
+.bk-calendar-card { padding: 18px; }
+.bk-calendar-card .fc {
+    --fc-border-color: var(--mr-border);
+    --fc-page-bg-color: var(--mr-card);
+    --fc-neutral-bg-color: var(--mr-card-2);
+    --fc-today-bg-color: var(--mr-accent-soft);
+    --fc-now-indicator-color: #e25555;
+    --fc-button-bg-color: var(--mr-card);
+    --fc-button-border-color: var(--mr-border);
+    --fc-button-text-color: var(--mr-text);
+    --fc-button-hover-bg-color: var(--mr-card-2);
+    --fc-button-hover-border-color: var(--mr-border);
+    --fc-button-active-bg-color: var(--mr-accent);
+    --fc-button-active-border-color: var(--mr-accent);
+    --fc-list-event-hover-bg-color: var(--mr-accent-soft);
+    font-size: .85rem;
+}
+.bk-calendar-card .fc .fc-toolbar-title { font-size: 1.05rem; font-weight: 700; }
+.bk-calendar-card .fc .fc-button { border-radius: 10px; font-weight: 600; font-size: .8rem; text-transform: capitalize; box-shadow: none !important; }
+.bk-calendar-card .fc .fc-button-active { color: #fff; }
+.bk-calendar-card .fc .fc-col-header-cell-cushion { font-weight: 600; color: var(--mr-text); padding: 8px 4px; }
+.bk-calendar-card .fc .fc-timegrid-slot-label-cushion { color: var(--mr-muted); font-size: .75rem; }
+.bk-calendar-card .fc .fc-timegrid-slot { height: 2.4em; }
+
+/* slot events */
+.fc .bk-slot-free {
+    background: rgba(38, 176, 108, .14); border: 1px solid rgba(38, 176, 108, .55);
+    cursor: pointer; transition: background .15s, transform .15s;
+}
+.fc .bk-slot-free .fc-event-main { color: #1c8a54; font-weight: 600; }
+.fc .bk-slot-free:hover { background: rgba(38, 176, 108, .28); }
+.fc .bk-slot-taken {
+    background: repeating-linear-gradient(45deg, var(--mr-card-2), var(--mr-card-2) 6px, var(--mr-border) 6px, var(--mr-border) 12px);
+    border: 1px solid var(--mr-border); cursor: not-allowed; opacity: .8;
+}
+.fc .bk-slot-taken .fc-event-main { color: var(--mr-muted); }
+.fc .bk-slot-selected,
+.fc .bk-slot-selected:hover { background: var(--mr-accent) !important; border-color: var(--mr-accent) !important; }
+.fc .bk-slot-selected .fc-event-main { color: #fff !important; }
+.fc .fc-list-event.bk-slot-taken { opacity: .55; }
+.fc .fc-list-event.bk-slot-selected td { color: #fff; }
+
+/* selection + legend */
+.bk-selection { position: sticky; top: 16px; }
+.bk-legend { display: flex; gap: 16px; }
+.bk-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.bk-dot-free { background: rgba(38, 176, 108, .45); border: 1px solid #26b06c; }
+.bk-dot-taken { background: var(--mr-border); }
+
+/* ---------- checkout / confirmation ---------- */
+.bk-info { display: flex; align-items: center; gap: 12px; }
+.bk-info > i {
+    width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; display: grid; place-items: center;
+    background: var(--mr-accent-soft); color: var(--mr-accent); font-size: 1.05rem;
+}
+.bk-pay-note {
+    display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px;
+    background: var(--mr-card-2); font-size: .85rem;
+}
+.bk-pay-note i { color: var(--mr-accent); font-size: 1.1rem; }
+.bk-confirmation { max-width: 560px; padding: 32px 28px; }
+.bk-confirmation-details { padding: 18px; border-radius: 14px; background: var(--mr-card-2); }
+
+/* ---------- my appointments ---------- */
+.bk-appt-row { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--mr-border); }
+.bk-appt-row:last-child { border-bottom: 0; }
+.bk-date-tile {
+    width: 56px; flex-shrink: 0; border-radius: 12px; text-align: center; padding: 6px 0;
+    background: var(--mr-accent-soft); color: var(--mr-accent); line-height: 1.1;
+}
+.bk-date-month { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.bk-date-day { display: block; font-size: 1.35rem; font-weight: 800; }
+
+@media (max-width: 575.98px) {
+    .bk-appt-row { flex-wrap: wrap; }
+    .bk-appt-row > .d-flex.flex-column { flex-direction: row !important; width: 100%; justify-content: space-between; align-items: center !important; }
+}
