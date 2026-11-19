@@ -29,3 +29,151 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* =========================================
+   Shefa Global Design System & Layout
+   ========================================= */
+:root {
+    --shefa-primary: #0EA5B7;
+    --shefa-primary-dark: #0B8494;
+    --shefa-primary-soft: #E6F7F9;
+    --shefa-navy: #0B2A5B;
+    --shefa-ink: #0F172A;
+    --shefa-body: #334155;
+    --shefa-muted: #64748B;
+    --shefa-line: #E2E8F0;
+    --shefa-bg: #F5F9FB;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--shefa-body);
+    background-color: #ffffff;
+    margin-bottom: 0;
+}
+
+/* Reusable Primary Pill Button */
+.shefa-btn-primary {
+    background-color: var(--shefa-primary);
+    border-color: var(--shefa-primary);
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 10px 24px;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+}
+
+    .shefa-btn-primary:hover {
+        background-color: var(--shefa-primary-dark);
+        border-color: var(--shefa-primary-dark);
+    }
+
+/* Navbar */
+.shefa-navbar {
+    min-height: 84px;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--shefa-line);
+}
+
+.shefa-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--shefa-navy) !important;
+    letter-spacing: -0.02em;
+}
+
+.shefa-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #14B8A6 0%, #0B8494 100%);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.shefa-brand-dot {
+    color: var(--shefa-primary);
+}
+
+.shefa-nav-pill-group {
+    border: 1px solid var(--shefa-line);
+    border-radius: 999px;
+    padding: 5px 8px;
+    background-color: #ffffff;
+}
+
+    .shefa-nav-pill-group .nav-link {
+        color: var(--shefa-body);
+        font-weight: 500;
+        font-size: 0.925rem;
+        padding: 8px 18px !important;
+        border-radius: 999px;
+        transition: all 0.2s ease;
+    }
+
+        .shefa-nav-pill-group .nav-link:hover {
+            color: var(--shefa-primary-dark);
+        }
+
+        .shefa-nav-pill-group .nav-link.active {
+            background-color: var(--shefa-primary-soft);
+            color: var(--shefa-primary-dark);
+            font-weight: 600;
+        }
+
+.shefa-btn-login {
+    color: var(--shefa-navy);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    padding: 8px 14px;
+}
+
+    .shefa-btn-login:hover {
+        color: var(--shefa-primary-dark);
+    }
+
+/* Footer */
+.shefa-footer {
+    background-color: var(--shefa-navy);
+    color: #ffffff;
+}
+
+.shefa-nav-pills {
+    background-color: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 999px;
+    padding: 5px;
+    gap: 4px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+}
+
+    .shefa-nav-pills .nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: var(--shefa-muted);
+        font-weight: 500;
+        font-size: 0.9rem;
+        padding: 8px 18px;
+        border-radius: 999px;
+        white-space: nowrap;
+        line-height: 1.2;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+        .shefa-nav-pills .nav-link:hover {
+            color: var(--shefa-navy);
+            background-color: var(--shefa-bg);
+        }
+
+        .shefa-nav-pills .nav-link.active {
+            background-color: var(--shefa-primary-soft);
+            color: var(--shefa-primary-dark);
+            font-weight: 600;
+        }

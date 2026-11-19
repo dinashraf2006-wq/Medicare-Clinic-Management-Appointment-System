@@ -1,8 +1,409 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model MediCare.Web.Models.Home.HomeViewModel
+
+@{
+    ViewData["Title"] = "Healthcare Reimagined";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
+
+<!-- Section 1: Hero Section -->
+<section class="shefa-hero">
+    <div class="container">
+        <div class="row align-items-end">
+            <!-- Left Content Column -->
+            <div class="col-lg-7">
+                <div class="shefa-eyebrow">Your Healthier Tomorrow</div>
+                <h1 class="shefa-hero-title">Healthcare<br />Reimagined</h1>
+                <p class="shefa-hero-subtitle">World-class doctors. Modern care. A healthier you.</p>
+                <p class="shefa-hero-desc">
+                    Find and book verified doctors in Cairo and across Egypt. Experience
+                    seamless, secure and personalized healthcare built around your life.
+                </p>
+
+                <!-- Search Form wired directly to DoctorsController -->
+                <form asp-controller="Doctors" asp-action="Index" method="get" class="shefa-search-box mb-4">
+                    <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2 gap-md-0">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <i class="bi bi-search text-muted me-2"></i>
+                            <input type="text" name="searchTerm" class="form-control p-0"
+                                   placeholder="Search doctors or specialties" />
+                        </div>
+
+                        <div class="shefa-search-divider d-none d-md-block"></div>
+
+                        <div class="d-flex align-items-center" style="min-width: 165px;">
+                            <i class="bi bi-geo-alt text-info me-1"></i>
+                            <select name="city" class="form-select p-2 fw-medium">
+                                @foreach (var item in Model.AvailableCities)
+                                {
+                                    <option value="@item" selected="@item">@item</option>
+                                }
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn shefa-btn-primary d-inline-flex align-items-center justify-content-center gap-2 ms-md-2">
+                            <span>Search</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Trust Badges -->
+                <div class="d-flex flex-wrap gap-4 pt-2">
+                    <div class="shefa-trust-item">
+                        <span class="shefa-trust-icon"><i class="bi bi-shield-check"></i></span>
+                        <div>
+                            <div class="fw-bold small text-dark">Verified Doctors</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Trusted &amp; qualified</div>
+                        </div>
+                    </div>
+                    <div class="shefa-trust-item">
+                        <span class="shefa-trust-icon"><i class="bi bi-calendar-check"></i></span>
+                        <div>
+                            <div class="fw-bold small text-dark">Instant Booking</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Real-time availability</div>
+                        </div>
+                    </div>
+                    <div class="shefa-trust-item">
+                        <span class="shefa-trust-icon"><i class="bi bi-lock"></i></span>
+                        <div>
+                            <div class="fw-bold small text-dark">Secure &amp; Private</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Your data, your control</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Floating Rating Badge -->
+            <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+                <div class="shefa-rating-card text-start">
+                    <div class="shefa-avatar-stack d-flex">
+                        <span style="background-color: #65A30D;">MA</span>
+                        <span style="background-color: #0EA5B7;">KS</span>
+                        <span style="background-color: #0B2A5B;">SA</span>
+                    </div>
+                    <div>
+                        <div class="fw-bold small text-dark">
+                            <i class="bi bi-star-fill text-warning me-1"></i>4.9
+                            <span class="text-muted fw-normal ms-1">96k reviews</span>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Trusted by 80,000+ patients</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Floating Stats Strip -->
+<section class="shefa-stats-wrapper">
+    <div class="container">
+        <div class="shefa-stats-card">
+            <div class="row g-3 g-md-0">
+                <div class="col-6 col-md-3">
+                    <div class="shefa-stat-item shefa-stat-border-end">
+                        <div class="shefa-stat-number">1,200<span class="shefa-stat-accent">+</span></div>
+                        <div class="shefa-stat-label">Verified Doctors</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="shefa-stat-item shefa-stat-border-end">
+                        <div class="shefa-stat-number">35<span class="shefa-stat-accent">+</span></div>
+                        <div class="shefa-stat-label">Specialties</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="shefa-stat-item shefa-stat-border-end">
+                        <div class="shefa-stat-number">80k<span class="shefa-stat-accent">+</span></div>
+                        <div class="shefa-stat-label">Happy Patients</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="shefa-stat-item">
+                        <div class="shefa-stat-number">4.9<span class="shefa-stat-accent">/5</span></div>
+                        <div class="shefa-stat-label">Patient Rating</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: Top Rated Doctors -->
+<section id="top-doctors" class="py-5 my-3">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-2">
+            <div>
+                <div class="shefa-section-eyebrow">Trusted Specialists</div>
+                <h2 class="shefa-section-title mb-1">Top Rated Doctors</h2>
+                <p class="text-muted mb-0">Book appointments with Egypt's highest-rated verified physicians.</p>
+            </div>
+            <a asp-controller="Doctors" asp-action="Index" class="shefa-link-more d-inline-flex align-items-center gap-1">
+                <span>Browse all doctors</span>
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var doctor in Model.TopDoctors)
+            {
+                var initials = string.Join("", doctor.FullName
+                    .Replace("Dr.", "")
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Take(2)
+                    .Select(n => n[0]));
+
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="shefa-doctor-card">
+                        <div class="shefa-doctor-avatar-box">
+
+                            <img src="@doctor.ProfileImageUrl"
+                                 alt="@doctor.FullName"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="shefa-doctor-initials" style="display: none;">@initials</div>
+                        </div>
+
+                        <div class="mb-1">
+                            <span class="badge rounded-pill fw-semibold"
+                                  style="background-color: var(--shefa-primary-soft); color: var(--shefa-primary-dark); font-size: 0.75rem;">
+                                @doctor.Specialty
+                            </span>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mt-2 mb-1">@doctor.FullName</h6>
+                        <div class="small text-muted">
+                            <i class="bi bi-geo-alt me-1" style="color: var(--shefa-primary);"></i>@doctor.City
+                           
+                        </div>
+
+                        <div class="shefa-doctor-meta d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted" style="font-size: 0.72rem;">Consultation Fee</div>
+                                <div class="fw-bold text-dark">@doctor.ConsultationFee.ToString("0") EGP</div>
+                            </div>
+                            <div class="text-end">
+                                    <span class="badge bg-light text-secondary rounded-pill fw-medium">
+                                        Next Available
+                                    </span>
+                            </div>
+                        </div>
+
+                        <a asp-controller="Doctors" asp-action="Details" asp-route-id="@doctor.Id"
+                           class="btn shefa-btn-primary w-100 mt-auto text-center">
+                            Book Appointment
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: Explore Specialties -->
+<section id="specialties" class="py-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-2">
+            <div>
+                <div class="shefa-section-eyebrow">Medical Specialties</div>
+                <h2 class="shefa-section-title mb-1">Explore Specialties</h2>
+                <p class="text-muted mb-0">Find the right specialist from 35+ fields of medicine.</p>
+            </div>
+            <a asp-controller="Specialties" asp-action="Index" class="shefa-link-more d-inline-flex align-items-center gap-1">
+                <span>View all specialties</span>
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var specialty in Model.FeaturedSpecialties)
+            {
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <a asp-controller="Doctors" asp-action="Index" asp-route-specialty="@specialty.Name" class="shefa-specialty-card">
+                        <div class="shefa-specialty-thumb">
+                            <img src="@specialty.ImageUrl"
+                                 alt="@specialty.Name"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="align-items-center justify-content-center w-100 h-100" style="display: none;">
+                                <i class="bi bi-activity fs-1" style="color: var(--shefa-primary);"></i>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center px-1">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1">@specialty.Name</h6>
+                                <span class="small fw-medium" style="color: var(--shefa-primary-dark);">
+                                    @specialty.DoctorCount @(specialty.DoctorCount == 1 ? "doctor" : "doctors")
+                                </span>
+                            </div>
+                            <span class="shefa-specialty-arrow">
+                                <i class="bi bi-arrow-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<!-- Section 4: How It Works -->
+<section id="how-it-works" class="shefa-how-section">
+    <div class="container">
+        <div class="text-center mx-auto mb-5" style="max-width: 560px;">
+            <div class="shefa-section-eyebrow">Simple Process</div>
+            <h2 class="shefa-section-title mb-2">How Shefa Works</h2>
+            <p class="text-muted mb-0">
+                Book your next medical appointment in three effortless steps—no waiting rooms or phone tag.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Step 01 -->
+            <div class="col-12 col-lg-4">
+                <div class="shefa-step-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="shefa-step-icon">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <span class="shefa-step-number">01</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Search &amp; Compare</h5>
+                    <p class="text-muted small mb-0" style="line-height: 1.65;">
+                        Filter verified specialists by city, consultation fees, patient ratings, and availability to find your ideal match.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 02 -->
+            <div class="col-12 col-lg-4">
+                <div class="shefa-step-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="shefa-step-icon">
+                            <i class="bi bi-calendar2-check"></i>
+                        </span>
+                        <span class="shefa-step-number">02</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Pick Your Time Slot</h5>
+                    <p class="text-muted small mb-0" style="line-height: 1.65;">
+                        Pick a clinic date and time slot that fits your schedule, with instant confirmation.
+                    </p>
+
+                </div>
+            </div>
+
+            <!-- Step 03 -->
+            <div class="col-12 col-lg-4">
+                <div class="shefa-step-card">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="shefa-step-icon">
+                            <i class="bi bi-heart-pulse"></i>
+                        </span>
+                        <span class="shefa-step-number">03</span>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">Visit &amp; Track Care</h5>
+                    <p class="text-muted small mb-0" style="line-height: 1.65;">
+                        Meet your doctor and access all your prescriptions, lab results, and medical history securely in one place.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Section 6: Patient Portal & About Banner -->
+<section id="about" class="py-5">
+    <div class="container">
+        <div class="shefa-portal-banner">
+            <div class="row align-items-center g-4">
+                <!-- Left Copy & CTA -->
+                <div class="col-lg-6">
+                    <div class="shefa-portal-badge">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>All-In-One Digital Care</span>
+                    </div>
+                    <h2 class="fw-extrabold mb-3" style="font-size: clamp(1.75rem, 3vw, 2.35rem); letter-spacing: -0.02em;">
+                        Your Entire Health Journey, Always Within Reach
+                    </h2>
+                    <p class="text-white-50 mb-4" style="line-height: 1.7;">
+                        Shefa connects patients across Egypt with trusted specialists while keeping every appointment, digital prescription, and medical record organized in one secure portal.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary px-4 py-2">
+                            Create Free Account
+                        </a>
+                        <a asp-controller="Doctors" asp-action="Index" class="btn shefa-btn-outline-light">
+                            Explore Doctors
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Feature Highlights -->
+                <div class="col-lg-6">
+                    <div class="d-flex flex-column gap-3">
+                        <div class="shefa-portal-feature">
+                            <div class="shefa-portal-feature-icon">
+                                <i class="bi bi-file-earmark-medical"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-1">Digital Prescriptions &amp; Records</h6>
+                                <p class="text-white-50 small mb-0">
+                                    View doctor notes, prescriptions, and uploaded lab documents anytime after your visit.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="shefa-portal-feature">
+                            <div class="shefa-portal-feature-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-1">Smart Appointment Management</h6>
+                                <p class="text-white-50 small mb-0">
+                                    Reschedule, track upcoming clinic visits, and get instant booking confirmations.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="shefa-portal-feature">
+                            <div class="shefa-portal-feature-icon">
+                                <i class="bi bi-award"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-1">100% Syndicate-Verified Physicians</h6>
+                                <p class="text-white-50 small mb-0">
+                                    Every doctor on Shefa undergoes credential verification before accepting patients.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Extra Section: Join as a Doctor Callout -->
+<section class="py-4" id="join-as-doctor">
+    <div class="container">
+        <div class="shefa-doctor-cta-card">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="shefa-doctor-cta-pill">
+                        <i class="bi bi-stethoscope"></i>
+                        <span>For Healthcare Providers</span>
+                    </div>
+                    <h3 class="fw-extrabold text-dark mb-2" style="letter-spacing: -0.02em;">
+                        Are you a doctor? Grow your practice with Shefa
+                    </h3>
+                    <p class="text-muted mb-0" style="max-width: 620px; line-height: 1.65;">
+                        Join many verified physicians across Egypt. Manage clinic schedules, streamline patient appointments, and build your digital presence effortlessly.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a asp-controller="Home" asp-action="ForDoctors"
+                       class="btn shefa-btn-primary d-inline-flex align-items-center gap-2 px-4 py-3">
+                        <span>Join as a Doctor</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -14,6 +14,7 @@ public class Doctor
     public string? Bio { get; set; }
     public decimal ConsultationFee { get; set; }
     public string? ProfileImageUrl { get; set; }
+    public string City { get; set; } = string.Empty;
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }

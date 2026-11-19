@@ -72,8 +72,8 @@ public static class MedicalRecordsDevSeeder
         var cardiology = await db.Specializations.FirstOrDefaultAsync(s => s.Name == "Cardiology")
                          ?? new Specialization { Name = "Cardiology", Description = "Heart & vascular care" };
 
-        var omar = new Doctor { User = users[DemoUsers[0].Email], Specialization = cardiology, ConsultationFee = 450 };
-        var ahmedDr = new Doctor { User = users[DemoUsers[1].Email], Specialization = cardiology, ConsultationFee = 450 };
+        var omar = new Doctor { User = users[DemoUsers[0].Email], Specialization = cardiology, ConsultationFee = 450 , City = "Cairo" };
+        var ahmedDr = new Doctor { User = users[DemoUsers[1].Email], Specialization = cardiology, ConsultationFee = 450, City = "Alexandria" };
         var sarah = new Patient { User = users[DemoUsers[2].Email], Allergies = "Penicillin", MedicalHistory = "Hypertension" };
         var ahmedAli = new Patient { User = users[DemoUsers[3].Email] };
         var laila = new Patient { User = users[DemoUsers[4].Email] };
