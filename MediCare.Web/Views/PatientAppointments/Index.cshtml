@@ -1,0 +1,84 @@
+@model PatientAppointmentsViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "My Appointments";
+    ViewData["ActiveNav"] = "appointments";
+    var items = Model.Tab == "history" ? Model.History : Model.Upcoming;
+}
+@section Styles { <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" /> }
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">My Appointments</h1>
+        <p class="mr-subtitle">Your upcoming visits and booking history.</p>
+    </div>
+    <div class="mr-page-actions">
+        <a class="btn mr-btn-primary" href="/Patient/Book"><i class="bi bi-calendar-plus me-1"></i>Book appointment</a>
+    </div>
+</div>
+
+<section class="mr-card">
+    <div class="mr-card-header">
+        <h2 class="mr-card-title">@(Model.Tab == "history" ? "Past & cancelled" : "Upcoming")</h2>
+        <nav class="mr-tabs" aria-label="Filter appointments">
+            <a class="mr-tab @(Model.Tab == "upcoming" ? "active" : "")" href="?tab=upcoming">Upcoming (@Model.Upcoming.Count)</a>
+            <a class="mr-tab @(Model.Tab == "history" ? "active" : "")" href="?tab=history">History (@Model.History.Count)</a>
+        </nav>
+    </div>
+
+    @if (items.Count == 0)
+    {
+        <div class="mr-empty">
+            <i class="bi bi-calendar-x"></i>
+            <p class="mb-1 fw-semibold">@(Model.Tab == "history" ? "No past appointments" : "No upcoming appointments")</p>
+            <p class="mr-muted small mb-3">Book a visit with one of our doctors in a few clicks.</p>
+            <a class="btn btn-sm mr-btn-primary" href="/Patient/Book">Book appointment</a>
+        </div>
+    }
+    else
+    {
+        <div class="bk-appt-list">
+            @foreach (var a in items)
+            {
+                <article class="bk-appt-row">
+                    <div class="bk-date-tile">
+                        <span class="bk-date-month">@a.Start.ToString("MMM")</span>
+                        <span class="bk-date-day">@a.Start.Day</span>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-bold text-truncate">@a.Doctor.FullName</div>
+                        <div class="mr-muted small">@a.Doctor.Specialization</div>
+                        <div class="small mt-1">
+                            <i class="bi bi-clock me-1 mr-muted"></i>@a.Start.ToString("dddd") &middot; @BookingDisplay.Time(a.Start) – @BookingDisplay.Time(a.End)
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(a.PatientNotes))
+                        {
+                            <div class="small mr-muted mt-1 text-truncate"><i class="bi bi-chat-left-text me-1"></i>@a.PatientNotes</div>
+                        }
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        <span class="mr-badge @BookingDisplay.StatusBadge(a.Status)">@BookingDisplay.StatusText(a.Status)</span>
+                        @if (a.CanCancel)
+                        {
+                            <form method="post" action="/Patient/Appointments/@a.Id/Cancel"
+                                  data-confirm="Cancel your appointment with @a.Doctor.FullName on @a.Start.ToString("MMM d") at @BookingDisplay.Time(a.Start)?">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm mr-btn-ghost"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+                            </form>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (!confirm(form.dataset.confirm)) e.preventDefault();
+            });
+        });
+    </script>
+}

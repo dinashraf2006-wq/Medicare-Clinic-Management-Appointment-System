@@ -8,6 +8,7 @@ public class UnitOfWork : IUnitOfWork
     private IMedicalRecordRepository? _medicalRecords;
     private IMedicalDocumentRepository? _medicalDocuments;
     private IPrescriptionRepository? _prescriptions;
+    private IAppointmentRepository? _appointments;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -22,6 +23,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IPrescriptionRepository Prescriptions =>
         _prescriptions ??= new PrescriptionRepository(_context);
+
+    public IAppointmentRepository Appointments =>
+        _appointments ??= new AppointmentRepository(_context);
 
     public IGenericRepository<T> Repository<T>() where T : class
     {

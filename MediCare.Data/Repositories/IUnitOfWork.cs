@@ -8,6 +8,9 @@ public interface IUnitOfWork : IDisposable
     IMedicalDocumentRepository MedicalDocuments { get; }
     IPrescriptionRepository Prescriptions { get; }
 
+    // Member 3 - Appointment Booking
+    IAppointmentRepository Appointments { get; }
+
     // Generic access to any other table (Doctors, Patients, ...)
     IGenericRepository<T> Repository<T>() where T : class;
 

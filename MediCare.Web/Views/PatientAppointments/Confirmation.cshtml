@@ -1,0 +1,33 @@
+@model PatientAppointmentDto
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Booking confirmed";
+    ViewData["ActiveNav"] = "appointments";
+}
+@section Styles { <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" /> }
+
+<section class="mr-card bk-confirmation mx-auto text-center">
+    <span class="mr-success-icon mx-auto mb-3"><i class="bi bi-check2"></i></span>
+    <h1 class="h4 fw-bold mb-1">Appointment booked!</h1>
+    <p class="mr-muted mb-4">Booking #@Model.Id &middot; we've sent your request to @Model.Doctor.FullName.</p>
+
+    <div class="text-start bk-confirmation-details mb-4">
+        <div class="bk-info mb-3"><i class="bi bi-person-badge"></i>
+            <div><div class="mr-label mb-0">Doctor</div><div class="fw-semibold">@Model.Doctor.FullName &middot; <span class="mr-muted">@Model.Doctor.Specialization</span></div></div>
+        </div>
+        <div class="bk-info mb-3"><i class="bi bi-calendar3"></i>
+            <div><div class="mr-label mb-0">Date &amp; time</div><div class="fw-semibold">@BookingDisplay.Day(Model.Start), @BookingDisplay.Time(Model.Start) – @BookingDisplay.Time(Model.End)</div></div>
+        </div>
+        <div class="bk-info mb-3"><i class="bi bi-cash-coin"></i>
+            <div><div class="mr-label mb-0">Fee</div><div class="fw-semibold">@Model.Doctor.ConsultationFee.ToString("0.##") EGP &middot; <span class="mr-muted">pay at the clinic</span></div></div>
+        </div>
+        <div class="bk-info"><i class="bi bi-hourglass-split"></i>
+            <div><div class="mr-label mb-0">Status</div><span class="mr-badge @BookingDisplay.StatusBadge(Model.Status)">@BookingDisplay.StatusText(Model.Status)</span></div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <a class="btn mr-btn-primary" href="/Patient/Appointments"><i class="bi bi-calendar3 me-1"></i>My appointments</a>
+        <a class="btn mr-btn-ghost" href="/Patient/Book">Book another</a>
+    </div>
+</section>

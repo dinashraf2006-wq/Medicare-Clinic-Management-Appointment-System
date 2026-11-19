@@ -1,0 +1,59 @@
+@model BookingDoctorsViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Book an appointment";
+    ViewData["ActiveNav"] = "book";
+}
+@section Styles { <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" /> }
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">Book an appointment</h1>
+        <p class="mr-subtitle">Choose a doctor, then pick a free time on their calendar.</p>
+    </div>
+    <div class="mr-page-actions">
+        <form method="get" class="mr-search" role="search">
+            <i class="bi bi-search"></i>
+            <input type="search" name="q" value="@Model.Search" placeholder="Doctor or specialty..." aria-label="Search doctors" />
+        </form>
+    </div>
+</div>
+
+@if (Model.Doctors.Count == 0)
+{
+    <section class="mr-card">
+        <div class="mr-empty">
+            <i class="bi bi-person-badge"></i>
+            <p class="mb-1 fw-semibold">No doctors found</p>
+            <p class="mr-muted small mb-0">Try a different name or specialty.</p>
+        </div>
+    </section>
+}
+
+<div class="row g-3">
+    @foreach (var d in Model.Doctors)
+    {
+        <div class="col-md-6 col-xl-4">
+            <article class="mr-card bk-doctor-card h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="mr-avatar mr-avatar-lg" style="background:@MedicalRecordsDisplay.AvatarColor(d.FullName)">@MedicalRecordsDisplay.Initials(d.FullName)</span>
+                    <div class="min-w-0">
+                        <h2 class="h6 fw-bold mb-0 text-truncate">@d.FullName</h2>
+                        <div class="mr-muted small">@d.Specialization</div>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(d.Bio))
+                {
+                    <p class="small mr-muted mb-3 bk-clamp">@d.Bio</p>
+                }
+                <div class="d-flex align-items-center justify-content-between mt-auto">
+                    <div>
+                        <div class="mr-label mb-0">Consultation fee</div>
+                        <div class="fw-bold">@d.ConsultationFee.ToString("0.##") EGP</div>
+                    </div>
+                    <a class="btn mr-btn-primary" href="/Patient/Book/@d.Id"><i class="bi bi-calendar-plus me-1"></i>Book</a>
+                </div>
+            </article>
+        </div>
+    }
+</div>
