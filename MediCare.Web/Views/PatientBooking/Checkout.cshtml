@@ -1,0 +1,90 @@
+@model CheckoutViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Confirm booking";
+    ViewData["ActiveNav"] = "book";
+    var d = Model.Doctor;
+}
+@section Styles { <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" /> }
+
+<a class="mr-back-link" href="/Patient/Book/@d.Id"><i class="bi bi-arrow-left me-1"></i>Change time</a>
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">Confirm your booking</h1>
+        <p class="mr-subtitle">Check the details below, then confirm.</p>
+    </div>
+</div>
+
+<form method="post" action="/Patient/Book/@d.Id/Checkout" class="row g-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="Start" value="@BookingDisplay.Iso(Model.Start)" />
+
+    <div class="col-lg-7">
+        <section class="mr-card h-100">
+            <h2 class="mr-card-title mb-3">Appointment details</h2>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <span class="mr-avatar mr-avatar-lg" style="background:@MedicalRecordsDisplay.AvatarColor(d.FullName)">@MedicalRecordsDisplay.Initials(d.FullName)</span>
+                <div>
+                    <div class="fw-bold">@d.FullName</div>
+                    <div class="mr-muted small">@d.Specialization</div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <div class="bk-info"><i class="bi bi-calendar3"></i>
+                        <div><div class="mr-label mb-0">Date</div><div class="fw-semibold">@BookingDisplay.Day(Model.Start)</div></div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="bk-info"><i class="bi bi-clock"></i>
+                        <div><div class="mr-label mb-0">Time</div><div class="fw-semibold">@BookingDisplay.Time(Model.Start) – @BookingDisplay.Time(Model.End)</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <label class="form-label small" asp-for="PatientNotes"></label>
+            <textarea class="form-control" asp-for="PatientNotes" rows="4" maxlength="@BookingService.MaxNotesLength"
+                      placeholder="e.g. chest pain for 3 days, follow-up on blood test..."></textarea>
+            <span class="text-danger small" asp-validation-for="PatientNotes"></span>
+            <div class="form-text mr-muted">Optional. Only your doctor can see this.</div>
+        </section>
+    </div>
+
+    <div class="col-lg-5">
+        <section class="mr-card">
+            <h2 class="mr-card-title mb-3">Summary</h2>
+            <div class="d-flex justify-content-between mb-2"><span class="mr-muted">Consultation fee</span><span>@d.ConsultationFee.ToString("0.##") EGP</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="mr-muted">Booking fee</span><span>0 EGP</span></div>
+            <hr />
+            <div class="d-flex justify-content-between fw-bold mb-3"><span>Total</span><span>@d.ConsultationFee.ToString("0.##") EGP</span></div>
+
+            <div class="bk-pay-note mb-3">
+                <i class="bi bi-cash-coin"></i>
+                <span>Pay at the clinic on the day of your visit.</span>
+            </div>
+
+            <ul class="mr-checklist small mb-3">
+                <li><i class="bi bi-check-circle-fill"></i>Your request is sent to the doctor for confirmation.</li>
+                <li><i class="bi bi-check-circle-fill"></i>You can cancel up to 2 hours before the appointment.</li>
+            </ul>
+
+            <button type="submit" class="btn mr-btn-primary w-100 py-2" id="bkConfirm">
+                <i class="bi bi-check2-circle me-1"></i>Confirm booking
+            </button>
+        </section>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        // Prevent double submission (double click = double booking attempt).
+        document.querySelector('form[action$="/Checkout"]').addEventListener('submit', function () {
+            var btn = document.getElementById('bkConfirm');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Booking...';
+        });
+    </script>
+}

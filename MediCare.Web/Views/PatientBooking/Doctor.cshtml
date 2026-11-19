@@ -1,0 +1,68 @@
+@model BookingCalendarViewModel
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "Book with " + Model.Doctor.FullName;
+    ViewData["ActiveNav"] = "book";
+    var d = Model.Doctor;
+}
+@section Styles { <link rel="stylesheet" href="~/css/booking.css" asp-append-version="true" /> }
+
+<a class="mr-back-link" href="/Patient/Book"><i class="bi bi-arrow-left me-1"></i>All doctors</a>
+
+<div class="mr-page-header">
+    <div>
+        <h1 class="mr-title">Choose a time</h1>
+        <p class="mr-subtitle">Each appointment is @Model.SlotMinutes minutes. You can book up to @Model.MaxDaysAhead days ahead.</p>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4 col-xl-3 order-lg-2">
+        <section class="mr-card mb-3">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <span class="mr-avatar mr-avatar-lg" style="background:@MedicalRecordsDisplay.AvatarColor(d.FullName)">@MedicalRecordsDisplay.Initials(d.FullName)</span>
+                <div class="min-w-0">
+                    <h2 class="h6 fw-bold mb-0">@d.FullName</h2>
+                    <div class="mr-muted small">@d.Specialization</div>
+                </div>
+            </div>
+            <div class="mr-label mb-0">Consultation fee</div>
+            <div class="fw-bold mb-0">@d.ConsultationFee.ToString("0.##") EGP</div>
+        </section>
+
+        <section class="mr-card bk-selection" id="bkSelection">
+            <div class="mr-label">Your selection</div>
+            <div id="bkSelectionEmpty" class="mr-muted small">
+                <i class="bi bi-hand-index me-1"></i>Click a green slot on the calendar.
+            </div>
+            <div id="bkSelectionDetails" class="d-none">
+                <div class="fw-bold" id="bkSelectedDay"></div>
+                <div class="mb-3" id="bkSelectedTime"></div>
+                <a id="bkContinue" class="btn mr-btn-primary w-100" href="#">Continue<i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </section>
+
+        <div class="bk-legend mt-3 small mr-muted">
+            <span><i class="bk-dot bk-dot-free"></i>Available</span>
+            <span><i class="bk-dot bk-dot-taken"></i>Booked</span>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-xl-9 order-lg-1">
+        <section class="mr-card bk-calendar-card">
+            <div id="bkCalendar"
+                 data-slots-url="/Patient/Book/@d.Id/Slots"
+                 data-checkout-url="/Patient/Book/@d.Id/Checkout"
+                 data-slot-minutes="@Model.SlotMinutes"
+                 data-max-days="@Model.MaxDaysAhead"></div>
+            <div id="bkCalendarError" class="alert alert-danger mt-3 d-none mb-0">
+                Could not load the available times. Please refresh the page.
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <script src="~/js/booking.js" asp-append-version="true"></script>
+}
