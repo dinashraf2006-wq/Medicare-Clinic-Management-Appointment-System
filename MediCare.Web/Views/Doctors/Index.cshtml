@@ -158,16 +158,11 @@
                                     <div>
                                         <div class="d-flex align-items-center gap-2 mb-1">
                                             <h5 class="fw-bold mb-0" style="color: var(--shefa-ink);">@(doctor.FullName ?? "Dr. Unknown")</h5>
-                                            <span class="badge rounded-pill px-2 py-1" style="font-size: 0.7rem; background-color: rgba(217, 119, 6, 0.1); color: #D97706; border: 1px solid rgba(217, 119, 6, 0.2);">
-                                                <i class="bi bi-star-fill me-1"></i> Top rated
-                                            </span>
                                         </div>
                                         <p class="small mb-2" style="color: var(--shefa-muted);">@(doctor.SpecializationName ?? "General Specialist")</p>
 
                                         <div class="d-flex align-items-center small mb-2 gap-3" style="color: var(--shefa-muted);">
-                                            <span><i class="bi bi-star-fill text-warning me-1"></i><strong style="color: var(--shefa-ink);">4.9</strong> (198 reviews)</span>
                                             <span><i class="bi bi-geo-alt text-danger me-1"></i>@(string.IsNullOrEmpty(doctor.City) ? "Cairo" : doctor.City)</span>
-                                            <span><i class="bi bi-briefcase me-1"></i>10 yrs experience</span>
                                         </div>
 
                                         <div class="d-flex gap-2">
@@ -183,7 +178,7 @@
                                     <h3 class="fw-bold mb-3" style="color: var(--shefa-ink);">EGP @doctor.ConsultationFee</h3>
 
                                     <div class="d-flex justify-content-lg-end gap-2">
-                                        <a href="#" class="btn btn-outline-secondary btn-sm px-3 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy);">View profile</a>
+                                        <a href="#" class="btn btn-outline-secondary btn-sm p-2 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy)">View profile</a>
                                         <a href="#" class="btn shefa-btn-primary btn-sm px-4 fw-semibold shadow-sm">Book now</a>
                                     </div>
                                 </div>

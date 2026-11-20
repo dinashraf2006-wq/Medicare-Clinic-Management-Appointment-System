@@ -2,7 +2,7 @@
 
 namespace MediCare.Services.Doctors
 {
-    public static class DoctorsServiceCollectionExtensions
+    public static class SpecializationServiceCollectionExtensions
     {
         public static IServiceCollection AddDoctorServices(this IServiceCollection services)
         {

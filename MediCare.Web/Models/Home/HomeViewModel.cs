@@ -1,4 +1,6 @@
-﻿namespace MediCare.Web.Models.Home
+﻿using MediCare.Web.Models.Specialties;
+
+namespace MediCare.Web.Models.Home
 {
     public class HomeViewModel
     {
@@ -6,14 +8,6 @@
         public List<DoctorCardItem> TopDoctors { get; set; } = new();
 
         public List<string> AvailableCities { get; set; } = new();
-    }
-
-    public class SpecialtyCardItem
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int DoctorCount { get; set; }
-        public string? ImageUrl { get; set; }
     }
 
     public class DoctorCardItem

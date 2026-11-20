@@ -1,6 +1,8 @@
 using MediCare.Web.Models;
 using MediCare.Web.Models.Home;
 using MediCare.Services.Doctors;
+using MediCare.Web.Models.Specialties;
+using MediCare.Services.Specializations;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -9,10 +11,12 @@ namespace MediCare.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IDoctorService _doctorService;
+        private readonly ISpecializationService _specializationService;
 
-        public HomeController(IDoctorService doctorService)
+        public HomeController(IDoctorService doctorService, ISpecializationService specializationService)
         {
             _doctorService = doctorService;
+            _specializationService = specializationService;
         }
         public async Task<IActionResult> Index()
         {
@@ -28,22 +32,21 @@ namespace MediCare.Web.Controllers
                 ProfileImageUrl = d.ProfileImageUrl
             }).ToList();
 
+            var specializations = await _specializationService.GetAllSpecializationsAsync();
+            var specialtyCards = specializations.Select(s => new SpecialtyCardItem
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Description = s.Description,
+                DoctorCount = s.Doctors.Count,
+                //ImageUrl = null 
+            }).ToList();
+
             var viewModel = new HomeViewModel
             {
                 AvailableCities = cities.ToList(),
                 TopDoctors = doctorCards,
-
-                FeaturedSpecialties = new List<SpecialtyCardItem>
-                {
-                    new() { Id = 1, Name = "Cardiology", DoctorCount = 128, ImageUrl = "/images/specialties/cardiology.png" },
-                    new() { Id = 2, Name = "Dermatology", DoctorCount = 96, ImageUrl = "/images/specialties/dermatology.png" },
-                    new() { Id = 3, Name = "Orthopedics", DoctorCount = 88, ImageUrl = "/images/specialties/orthopedics.png" },
-                    new() { Id = 4, Name = "Pediatrics", DoctorCount = 140, ImageUrl = "/images/specialties/pediatrics.png" },
-                    new() { Id = 5, Name = "Gynecology", DoctorCount = 72, ImageUrl = "/images/specialties/gynecology.png" },
-                    new() { Id = 6, Name = "Neurology", DoctorCount = 54, ImageUrl = "/images/specialties/neurology.png" },
-                    new() { Id = 7, Name = "Dentistry", DoctorCount = 110, ImageUrl = "/images/specialties/dentistry.png" },
-                    new() { Id = 8, Name = "Ophthalmology", DoctorCount = 63, ImageUrl = "/images/specialties/ophthalmology.png" }
-                }
+                FeaturedSpecialties = specialtyCards
             };
 
             return View(viewModel);

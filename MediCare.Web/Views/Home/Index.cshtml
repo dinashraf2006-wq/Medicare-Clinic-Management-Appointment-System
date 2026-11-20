@@ -4,6 +4,12 @@
     ViewData["Title"] = "Healthcare Reimagined";
 }
 
+@{
+    var bookingUrl = Url.Action("Index", "Doctors"); // or your booking controller/action
+    var loginUrl = Url.Action("Login", "Account", new { returnUrl = bookingUrl });
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+}
+
 @section Styles {
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 }
@@ -36,9 +42,10 @@
                         <div class="d-flex align-items-center" style="min-width: 165px;">
                             <i class="bi bi-geo-alt text-info me-1"></i>
                             <select name="city" class="form-select p-2 fw-medium">
+                                <option value="" selected>All Cities</option>
                                 @foreach (var item in Model.AvailableCities)
                                 {
-                                    <option value="@item" selected="@item">@item</option>
+                                    <option value="@item">@item</option>
                                 }
                             </select>
                         </div>
@@ -74,58 +81,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- Right Floating Rating Badge -->
-            <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-                <div class="shefa-rating-card text-start">
-                    <div class="shefa-avatar-stack d-flex">
-                        <span style="background-color: #65A30D;">MA</span>
-                        <span style="background-color: #0EA5B7;">KS</span>
-                        <span style="background-color: #0B2A5B;">SA</span>
-                    </div>
-                    <div>
-                        <div class="fw-bold small text-dark">
-                            <i class="bi bi-star-fill text-warning me-1"></i>4.9
-                            <span class="text-muted fw-normal ms-1">96k reviews</span>
-                        </div>
-                        <div class="text-muted" style="font-size: 0.75rem;">Trusted by 80,000+ patients</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Section 2: Floating Stats Strip -->
-<section class="shefa-stats-wrapper">
-    <div class="container">
-        <div class="shefa-stats-card">
-            <div class="row g-3 g-md-0">
-                <div class="col-6 col-md-3">
-                    <div class="shefa-stat-item shefa-stat-border-end">
-                        <div class="shefa-stat-number">1,200<span class="shefa-stat-accent">+</span></div>
-                        <div class="shefa-stat-label">Verified Doctors</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="shefa-stat-item shefa-stat-border-end">
-                        <div class="shefa-stat-number">35<span class="shefa-stat-accent">+</span></div>
-                        <div class="shefa-stat-label">Specialties</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="shefa-stat-item shefa-stat-border-end">
-                        <div class="shefa-stat-number">80k<span class="shefa-stat-accent">+</span></div>
-                        <div class="shefa-stat-label">Happy Patients</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="shefa-stat-item">
-                        <div class="shefa-stat-number">4.9<span class="shefa-stat-accent">/5</span></div>
-                        <div class="shefa-stat-label">Patient Rating</div>
-                    </div>
-                </div>
-            </div>
+            </div>            
         </div>
     </div>
 </section>
@@ -182,14 +138,9 @@
                                 <div class="text-muted" style="font-size: 0.72rem;">Consultation Fee</div>
                                 <div class="fw-bold text-dark">@doctor.ConsultationFee.ToString("0") EGP</div>
                             </div>
-                            <div class="text-end">
-                                    <span class="badge bg-light text-secondary rounded-pill fw-medium">
-                                        Next Available
-                                    </span>
-                            </div>
                         </div>
 
-                        <a asp-controller="Doctors" asp-action="Details" asp-route-id="@doctor.Id"
+                        <a href="@(isAuthenticated ? bookingUrl : loginUrl)"
                            class="btn shefa-btn-primary w-100 mt-auto text-center">
                             Book Appointment
                         </a>
@@ -207,7 +158,7 @@
             <div>
                 <div class="shefa-section-eyebrow">Medical Specialties</div>
                 <h2 class="shefa-section-title mb-1">Explore Specialties</h2>
-                <p class="text-muted mb-0">Find the right specialist from 35+ fields of medicine.</p>
+                <p class="text-muted mb-0">Find the right specialist from all fields of medicine.</p>
             </div>
             <a asp-controller="Specialties" asp-action="Index" class="shefa-link-more d-inline-flex align-items-center gap-1">
                 <span>View all specialties</span>
@@ -221,9 +172,21 @@
                 <div class="col-12 col-sm-6 col-lg-3">
                     <a asp-controller="Doctors" asp-action="Index" asp-route-specialty="@specialty.Name" class="shefa-specialty-card">
                         <div class="shefa-specialty-thumb">
-                            <img src="@specialty.ImageUrl"
-                                 alt="@specialty.Name"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            @if (!string.IsNullOrWhiteSpace(specialty.ImageUrl))
+                            {
+                                <img src="@specialty.ImageUrl"
+                                     alt="@specialty.Name"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                <div class="shefa-ecg-placeholder" style="display: none;">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="shefa-ecg-placeholder">
+                                    <i class="bi bi-activity"></i>
+                                </div>
+                            }
                             <div class="align-items-center justify-content-center w-100 h-100" style="display: none;">
                                 <i class="bi bi-activity fs-1" style="color: var(--shefa-primary);"></i>
                             </div>
@@ -328,9 +291,6 @@
                     <div class="d-flex flex-wrap gap-3">
                         <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary px-4 py-2">
                             Create Free Account
-                        </a>
-                        <a asp-controller="Doctors" asp-action="Index" class="btn shefa-btn-outline-light">
-                            Explore Doctors
                         </a>
                     </div>
                 </div>

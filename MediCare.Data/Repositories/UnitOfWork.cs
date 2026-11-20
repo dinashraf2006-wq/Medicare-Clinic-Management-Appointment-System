@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork
     private IPrescriptionRepository? _prescriptions;
 
     private IDoctorRepository? _doctors;
+    private ISpecializationRepository? _specialization;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -27,6 +28,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IDoctorRepository Doctors =>
         _doctors ??= new DoctorRepository(_context);
+
+    public ISpecializationRepository Specialization =>
+        _specialization ??= new SpecializationRepository(_context);
 
     public IGenericRepository<T> Repository<T>() where T : class
     {

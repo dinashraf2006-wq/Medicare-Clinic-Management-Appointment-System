@@ -10,6 +10,7 @@ public interface IUnitOfWork : IDisposable
 
     // Member 2 - Doctors
     IDoctorRepository Doctors { get; }
+    ISpecializationRepository Specialization { get; }
 
     // Generic access to any other table (Doctors, Patients, ...)
     IGenericRepository<T> Repository<T>() where T : class;

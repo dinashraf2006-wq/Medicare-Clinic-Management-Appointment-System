@@ -6,7 +6,6 @@ namespace MediCare.Services.Doctors
     {
         Task<IEnumerable<DoctorDto>> SearchDoctorsAsync(string? doctorName, string? specialty, decimal? minFee, decimal? maxFee, string? city = null);
         Task<IEnumerable<string>> GetAvailableCitiesAsync();
-
         Task<IEnumerable<DoctorDto>> GetTopDoctorsAsync(int count = 4);
     }
 
