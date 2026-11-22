@@ -15,6 +15,7 @@ public class DoctorConfiguration : IEntityTypeConfiguration<Doctor>
         b.HasOne(d => d.User).WithMany().HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
         b.HasOne(d => d.Specialization).WithMany(s => s.Doctors)
             .HasForeignKey(d => d.SpecializationId).OnDelete(DeleteBehavior.Restrict);
+        b.Property(d => d.City).HasMaxLength(100).IsRequired();
     }
 }
 

@@ -10,6 +10,9 @@ public class UnitOfWork : IUnitOfWork
     private IPrescriptionRepository? _prescriptions;
     private IAppointmentRepository? _appointments;
 
+    private IDoctorRepository? _doctors;
+    private ISpecializationRepository? _specialization;
+
     public UnitOfWork(ApplicationDbContext context)
     {
         _context = context;
@@ -24,6 +27,11 @@ public class UnitOfWork : IUnitOfWork
     public IPrescriptionRepository Prescriptions =>
         _prescriptions ??= new PrescriptionRepository(_context);
 
+    public IDoctorRepository Doctors =>
+        _doctors ??= new DoctorRepository(_context);
+
+    public ISpecializationRepository Specialization =>
+        _specialization ??= new SpecializationRepository(_context);
     public IAppointmentRepository Appointments =>
         _appointments ??= new AppointmentRepository(_context);
 

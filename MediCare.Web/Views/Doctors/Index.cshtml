@@ -1,0 +1,211 @@
+﻿@model MediCare.Web.Models.Doctors.DoctorSearchViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doctors-search.css" asp-append-version="true" />
+}
+
+@{
+    ViewData["Title"] = "Find Doctors";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-1 small text-muted">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">Find Doctors</li>
+        </ol>
+    </nav>
+    <h2 class="fw-bold mb-4" style="color: var(--shefa-ink);">Find the right doctor for you</h2>
+
+    <!-- TOP SEARCH PILL BAR -->
+    <div class="card border-0 shadow-sm rounded-pill p-2 mb-5 bg-white">
+        <form asp-controller="Doctors" asp-action="Index" method="get" id="topSearchForm" class="row g-0 align-items-center">
+            <!-- Segment 1: Specialty / Doctor -->
+            <div class="col-lg-5 px-3 border-end d-flex align-items-center py-2">
+                <i class="bi bi-search fs-5 me-2" style="color: var(--shefa-primary);"></i>
+                <div class="w-100">
+                    <label class="d-block text-uppercase fw-bold" style="font-size: 0.65rem; color: var(--shefa-muted); letter-spacing: 0.5px;">Specialty or doctor</label>
+                    <input type="text" name="searchTerm" value="@Model.DoctorName" class="form-control border-0 p-0 shadow-none bg-transparent" placeholder="e.g. Dr Ahmed, Cardiology" style="font-size: 0.95rem; font-weight: 500; color: var(--shefa-ink);" />
+                </div>
+            </div>
+
+            <!-- Segment 2: Location / City -->
+            <div class="col-lg-5 px-3 border-end d-flex align-items-center py-2">
+                <i class="bi bi-geo-alt fs-5 me-2" style="color: var(--shefa-primary);"></i>
+                <div class="w-100">
+                    <label class="d-block text-uppercase fw-bold" style="font-size: 0.65rem; color: var(--shefa-muted); letter-spacing: 0.5px;">Location</label>
+                    <select name="city" class="form-select border-0 p-3 shadow-none bg-transparent" style="font-size: 0.95rem; font-weight: 500; color: var(--shefa-ink);">
+                        <option value="">All Cities</option>
+                        @if (Model.AvailableCities != null)
+                        {
+                            foreach (var cityName in Model.AvailableCities)
+                            {
+                                <option value="@cityName" selected="@(Model.City == cityName)">@cityName</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <input type="hidden" name="specialty" value="@Model.Specialty" />
+            <input type="hidden" name="minFee" value="@(Model.MinFee ?? 0)" />
+            <input type="hidden" name="maxFee" value="@(Model.MaxFee ?? 2000)" />
+
+            <!-- Submit Button (Using your .shefa-btn-primary class) -->
+            <div class="col-lg-2 text-end px-2">
+                <button type="submit" class="btn shefa-btn-primary w-100 py-2 shadow-sm text-center">
+                    Search <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <!-- LEFT SIDEBAR: FILTERS -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="z-index:10; top: 2rem;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0" style="color: var(--shefa-ink);"><i class="bi bi-sliders me-2" style="color: var(--shefa-primary);"></i>Filters</h5>
+                    <a asp-controller="Doctors" asp-action="Index" class="text-decoration-none small fw-semibold" style="color: var(--shefa-muted);">Clear all</a>
+                </div>
+                <hr style="border-color: var(--shefa-line); opacity: 1;">
+
+                <form asp-controller="Doctors" asp-action="Index" method="get" id="sidebarFilterForm">
+                    <!-- Specialty Filter -->
+                    <div class="mb-4">
+                        <label class="fw-bold small mb-2" style="color: var(--shefa-ink);">Specialty</label>
+                        <input type="text" name="specialty" value="@Model.Specialty" class="form-control form-control-sm rounded-pill px-3 py-2" style="border-color: var(--shefa-line);" placeholder="e.g. Cardiology" />
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="fw-bold small mb-0" style="color: var(--shefa-ink);">Consultation fee</label>
+                        </div>
+
+                        <div class="shefa-range-container my-2">
+                            <div class="shefa-range-track" id="feeSliderTrack"></div>
+                            <input type="range" name="minFee" id="minFeeInput" min="0" max="2000" step="50"
+                                   value="@(Model.MinFee ?? 0)" class="shefa-range-input" />
+                            <input type="range" name="maxFee" id="maxFeeInput" min="0" max="2000" step="50"
+                                   value="@(Model.MaxFee ?? 2000)" class="shefa-range-input" />
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 0.78rem; color: var(--shefa-muted);">
+                            <span>EGP <strong id="minFeeLabel" style="color: var(--shefa-body);">@(Model.MinFee ?? 0)</strong></span>
+                            <span>EGP <strong id="maxFeeLabel" style="color: var(--shefa-body);">@(Model.MaxFee ?? 2000)</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Hidden retainers -->
+                    <input type="hidden" name="searchTerm" value="@Model.DoctorName" />
+                    <input type="hidden" name="city" value="@Model.City" />
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button type="submit" class="btn shefa-btn-primary btn-sm py-2">Apply Filters</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: DOCTOR RESULTS -->
+        <div class="col-lg-9">
+            <!-- Results Header & Sort -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0" style="color: var(--shefa-ink);">
+                    @(Model.Doctors?.Count() ?? 0) Doctors Found
+                </h4>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle px-3 shadow-sm bg-white" type="button" data-bs-toggle="dropdown" style="border-color: var(--shefa-line); color: var(--shefa-body); border-radius: 999px;">
+                        Sort by:
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                        <li><a class="dropdown-item py-2" href="#">Price: Low to High</a></li>
+                        <li><a class="dropdown-item py-2" href="#">Rating: High to Low</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model.Doctors == null || !Model.Doctors.Any())
+            {
+                <div class="card border-0 shadow-sm p-5 text-center rounded-4 bg-white">
+                    <div class="card-body py-5">
+                        <i class="bi bi-search display-4 mb-3" style="color: var(--shefa-muted);"></i>
+                        <h4 class="fw-bold" style="color: var(--shefa-ink);">No doctors found matching your criteria</h4>
+                        <p class="small mb-4" style="color: var(--shefa-muted);">Try adjusting your filters, location, or specialty keywords.</p>
+                        <a asp-controller="Doctors" asp-action="Index" class="btn shefa-btn-primary px-4">Reset All Filters</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var doctor in Model.Doctors)
+                    {
+                        <!-- DOCTOR CARD -->
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white position-relative">
+                            <div class="row align-items-center">
+                                <!-- Avatar & Info -->
+                                <div class="col-lg-7 d-flex align-items-start">
+                                    <div class="position-relative me-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 75px; height: 75px; font-size: 1.5rem; background-color: var(--shefa-primary-soft); color: var(--shefa-primary);">
+                                            @(doctor.FullName?.Substring(0, Math.Min(2, doctor.FullName.Length)).ToUpper() ?? "DR")
+                                        </div>
+                                        <span class="position-absolute bottom-0 end-0 rounded-circle p-1 d-flex align-items-center justify-content-center text-white" style="width: 22px; height: 22px; font-size: 0.65rem; background-color: var(--shefa-primary);">
+                                            <i class="bi bi-check-lg"></i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <h5 class="fw-bold mb-0" style="color: var(--shefa-ink);">@(doctor.FullName ?? "Dr. Unknown")</h5>
+                                        </div>
+                                        <p class="small mb-2" style="color: var(--shefa-muted);">@(doctor.SpecializationName ?? "General Specialist")</p>
+
+                                        <div class="d-flex align-items-center small mb-2 gap-3" style="color: var(--shefa-muted);">
+                                            <span><i class="bi bi-geo-alt text-danger me-1"></i>@(string.IsNullOrEmpty(doctor.City) ? "Cairo" : doctor.City)</span>
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+                                            <span class="badge rounded-pill px-3 py-1" style="background-color: var(--shefa-primary-soft); color: var(--shefa-primary); font-weight: 500;"><i class="bi bi-hospital me-1"></i> In-clinic</span>
+                                            <span class="badge rounded-pill px-3 py-1" style="background-color: var(--shefa-primary-soft); color: var(--shefa-primary); font-weight: 500;"><i class="bi bi-camera-video me-1"></i> Video call</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pricing & Action Button -->
+                                <div class="col-lg-5 text-lg-end mt-3 mt-lg-0 border-start-lg ps-lg-4">
+                                    <div class="small" style="color: var(--shefa-muted);">Consultation</div>
+                                    <h3 class="fw-bold mb-3" style="color: var(--shefa-ink);">EGP @doctor.ConsultationFee</h3>
+
+                                    <div class="d-flex justify-content-lg-end gap-2">
+                                        <a asp-action="Details" asp-route-id="@doctor.Id" class="btn btn-outline-secondary btn-sm p-2 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy)">View profile</a>
+                                        <a href="#" class="btn shefa-btn-primary btn-sm px-4 fw-semibold shadow-sm">Book now</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Time Slots Footer Strip inside Card -->
+                            <hr style="border-color: var(--shefa-line); opacity: 0.5; margin: 1rem 0;">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-pill px-3 py-1" style="background-color: rgba(22, 163, 74, 0.1); color: #16A34A; font-weight: 600;">
+                                        <i class="bi bi-clock me-1"></i> Today
+                                    </span>
+                                    <span class="badge bg-light border px-2 py-1" style="color: var(--shefa-ink); border-color: var(--shefa-line) !important;">4:00 PM</span>
+                                    <span class="badge bg-light border px-2 py-1" style="color: var(--shefa-ink); border-color: var(--shefa-line) !important;">4:30 PM</span>
+                                    <span class="badge bg-light border px-2 py-1" style="color: var(--shefa-ink); border-color: var(--shefa-line) !important;">5:30 PM</span>
+                                    <span class="badge bg-light border px-2 py-1" style="color: var(--shefa-ink); border-color: var(--shefa-line) !important;">7:00 PM</span>
+                                </div>
+                                <span class="small fst-italic" style="color: var(--shefa-muted);">Next available slots today</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/doctors-search.js" asp-append-version="true"></script>
+}

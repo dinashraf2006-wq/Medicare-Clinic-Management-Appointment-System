@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Join Shefa as a Doctor";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/for-doctors.css" asp-append-version="true" />
+}
+
+<!-- Section 1: Doctor Hero -->
+<section class="shefa-doc-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <!-- Left Content -->
+            <div class="col-lg-6">
+                <div class="shefa-doc-pill">
+                    <span class="shefa-doc-pill-dot"></span>
+                    <span>For doctors</span>
+                </div>
+
+                <h1 class="shefa-doc-hero-title">
+                    Grow your practice with Shefa
+                </h1>
+
+                <p class="shefa-doc-hero-desc">
+                    Reach 80,000+ patients across Egypt, manage clinic bookings and digital prescriptions, and organize your schedule — all from one dashboard.
+                </p>
+
+                <div>
+                    <a asp-controller="Account" asp-action="Register" asp-route-role="Doctor"
+                       class="btn shefa-btn-primary d-inline-flex align-items-center gap-2 px-4 py-3">
+                        <i class="bi bi-arrow-right"></i>
+                        <span>Start registration</span>
+                    </a>
+                </div>
+                
+            </div>
+
+            <!-- Right Hero Visual -->
+            <div class="col-lg-6">
+                <div class="shefa-doc-hero-media">
+                    <img src="/images/joinAsDoctorHero.jpg"
+                         alt="Doctor using Shefa platform"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div class="flex-column align-items-center justify-content-center text-center p-4" style="display: none;">
+                        <i class="bi bi-heart-pulse-fill mb-3" style="font-size: 4rem; color: var(--shefa-primary);"></i>
+                        <div class="fw-bold text-dark">Shefa Doctor Portal</div>
+                        <div class="small text-muted">Drop <code>doctor-hero.jpg</code> into <code>wwwroot/images/</code></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Why Doctors Choose Shefa -->
+<section class="py-5 my-4">
+    <div class="container">
+        <h2 class="shefa-doc-section-title">Why doctors choose Shefa</h2>
+
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-benefit-card">
+                    <div class="shefa-doc-benefit-icon">
+                        <i class="bi bi-calendar2-check"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Smart scheduling</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Manage clinic time slots, online bookings, and fewer no-shows effortlessly.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2 (Tailored to real MediCare features) -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-benefit-card">
+                    <div class="shefa-doc-benefit-icon">
+                        <i class="bi bi-file-earmark-medical"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Digital prescriptions</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Issue e-prescriptions and review patient medical records before every visit.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 3 (Tailored to real MediCare features) -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-benefit-card">
+                    <div class="shefa-doc-benefit-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Patient management</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Keep track of daily appointments, visit history, and follow-ups in one place.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-benefit-card">
+                    <div class="shefa-doc-benefit-icon">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Practice insights</h6>
+                    <p class="text-muted small mb-0" style="line-height: 1.6;">
+                        Track completed visits, patient ratings, and clinic activity at a glance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: Join in 4 Simple Steps -->
+<section class="pb-5 mb-4">
+    <div class="container">
+        <h2 class="shefa-doc-section-title">Join in 4 simple steps</h2>
+
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-step-box">
+                    <div class="shefa-doc-step-num">01</div>
+                    <div class="fw-bold text-dark small">Create account</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-step-box">
+                    <div class="shefa-doc-step-num">02</div>
+                    <div class="fw-bold text-dark small">Add professional info</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-step-box">
+                    <div class="shefa-doc-step-num">03</div>
+                    <div class="fw-bold text-dark small">Upload credentials</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="shefa-doc-step-box">
+                    <div class="shefa-doc-step-num">04</div>
+                    <div class="fw-bold text-dark small">Get verified in 48h</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

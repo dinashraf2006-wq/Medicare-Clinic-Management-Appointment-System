@@ -1,0 +1,93 @@
+﻿@model MediCare.Web.Models.Specialties.SpecialtiesViewModel
+
+@{
+    ViewData["Title"] = "All Specialties";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/specialties-page.css" asp-append-version="true" />
+}
+
+<section class="shefa-specialties-hero">
+    <div class="container">
+        <nav class="shefa-breadcrumb" aria-label="Breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Home</a>
+            <span class="mx-2">&gt;</span>
+            <span class="current">Specialties</span>
+        </nav>
+
+        <h1 class="shefa-page-title">All Specialties</h1>
+        <p class="shefa-page-subtitle">Find the right specialist from 35+ fields of medicine.</p>
+
+        <form asp-controller="Specialties" asp-action="Index" method="get" class="shefa-specialty-search">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text"
+                   name="search"
+                   value="@Model.SearchQuery"
+                   placeholder="Search a specialty or condition"
+                   aria-label="Search a specialty or condition" />
+            <button type="submit" class="shefa-btn-search">Search</button>
+        </form>
+    </div>
+</section>
+
+<section class="shefa-specialties-grid-section">
+    <div class="container">
+        @if (Model.Specialties.Count == 0)
+        {
+            <div class="text-center py-5">
+                <p class="text-muted mb-3">
+                    No specialties matched "@Model.SearchQuery".
+                </p>
+                <a asp-controller="Specialties" asp-action="Index" class="btn shefa-btn-search">
+                    Reset Search
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @foreach (var item in Model.Specialties)
+                {
+                    <div class="col">
+                        <a asp-controller="Doctors"
+                           asp-action="Index"
+                           asp-route-specialtyId="@item.Id"
+                           class="shefa-specialty-card">
+                            <div class="shefa-specialty-media">
+                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                {
+                                    <img src="@item.ImageUrl"
+                                         alt="@item.Name"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                    <div class="shefa-ecg-placeholder" style="display: none;">
+                                        <i class="bi bi-activity"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="shefa-ecg-placeholder">
+                                        <i class="bi bi-activity"></i>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="shefa-specialty-body">
+                                <div>
+                                    <h2 class="shefa-specialty-title">@item.Name</h2>
+                                    <p class="shefa-specialty-count">
+                                        @item.DoctorCount @(item.DoctorCount == 1 ? "doctor" : "doctors")
+                                    </p>
+                                </div>
+
+                                <span class="shefa-specialty-arrow" aria-hidden="true">
+                                    <i class="bi bi-arrow-right"></i>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

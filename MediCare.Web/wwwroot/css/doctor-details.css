@@ -1,0 +1,263 @@
+﻿:root {
+    --shefa-teal: #0d9488;
+    --shefa-teal-dark: #0f766e;
+    --shefa-teal-soft: #e6f7f5;
+    --shefa-navy: #0f2942;
+    --shefa-border: #e5eef0;
+    --shefa-text-muted: #64748b;
+}
+
+.doctor-profile-page {
+    background-color: var(--shefa-bg);
+    min-height: calc(100vh - 80px);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Breadcrumbs */
+.shefa-breadcrumb .breadcrumb-item a {
+    color: var(--shefa-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+    .shefa-breadcrumb .breadcrumb-item a:hover {
+        color: var(--shefa-primary);
+    }
+
+.shefa-breadcrumb .breadcrumb-item.active {
+    color: var(--shefa-navy);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Hero Card */
+.profile-hero-card {
+    background: #ffffff;
+    border: 1px solid var(--shefa-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(15, 41, 66, 0.04);
+}
+
+.profile-hero-body {
+    padding: 0 1.75rem 1.75rem;
+    margin-top : 20px;
+}
+
+.doctor-avatar-lg {
+    width: 112px;
+    height: 112px;
+    border-radius: 18px;
+    object-fit: cover;
+    border: 4px solid #ffffff;
+    background-color: #f1f5f9;
+    box-shadow: 0 6px 16px rgba(15, 41, 66, 0.12);
+}
+
+.doctor-name {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--shefa-navy);
+}
+
+.verified-icon {
+    color: var(--shefa-primary);
+    font-size: 1.15rem;
+}
+
+.badge-top-rated {
+    background-color: #fef3c7;
+    color: #b45309;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+}
+
+.doctor-specialty {
+    color: var(--shefa-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.doctor-meta-row {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.rating-stars {
+    color: #f59e0b;
+    font-size: 0.85rem;
+}
+
+/* Stat Pills */
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 14px;
+    background-color: #f8fbfc;
+    border: 1px solid #e5eef0;
+}
+
+.stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--shefa-navy);
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--shefa-muted);
+}
+
+/* Tabs & Content Card */
+.shefa-profile-tabs {
+    border-bottom: 1px solid #e5eef0;
+    gap: 1.5rem;
+}
+
+    .shefa-profile-tabs .nav-link {
+        border: none;
+        background: transparent;
+        color: var(--shefa-muted);
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 0.65rem 0.25rem;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+    }
+
+        .shefa-profile-tabs .nav-link:hover {
+            color: var(--shefa-navy);
+        }
+
+        .shefa-profile-tabs .nav-link.active {
+            color: var(--shefa-primary);
+            border-bottom-color: var(--shefa-primary);
+        }
+
+.profile-content-card {
+    background: #ffffff;
+    border: 1px solid #e5eef0;
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 20px rgba(15, 41, 66, 0.04);
+}
+
+.section-heading {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--shefa-navy);
+    margin-bottom: 0.85rem;
+}
+
+.sub-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--shefa-navy);
+}
+
+.doctor-bio-text {
+    color: #475569;
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.focus-chip {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-size: 0.825rem;
+    font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+}
+
+/* Sticky Sidebar Card */
+.booking-sidebar-card {
+    background: #ffffff;
+    border: 1px solid #e5eef0;
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(15, 41, 66, 0.06);
+}
+
+.fee-label {
+    font-size: 0.875rem;
+    color: var(--shefa-text-muted);
+    font-weight: 500;
+}
+
+.badge-available {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: #dcfce7;
+    color: #15803d;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+}
+
+    .badge-available .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #16a34a;
+    }
+
+.fee-amount {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: var(--shefa-navy);
+    letter-spacing: -0.02em;
+}
+
+.btn-shefa-book {
+    background-color: var(--shefa-primary);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 999px;
+    border: none;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+    .btn-shefa-book:hover {
+        background-color: var(--shefa-primary-dark);
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+
+.cancellation-note {
+    font-size: 0.8rem;
+    color: var(--shefa-muted);
+}
+
+    .cancellation-note i {
+        color: #16a34a;
+    }
+
+.text-teal {
+    color: var(--shefa-primary);
+}

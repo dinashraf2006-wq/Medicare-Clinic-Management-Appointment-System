@@ -1,0 +1,560 @@
+﻿/* =========================================
+   Shefa Landing Page (Home/Index.cshtml)
+   ========================================= */
+
+/* =========================================
+   Section 1: Hero Section
+   ========================================= */
+.shefa-hero {
+    position: relative;
+    background-color: var(--shefa-bg);
+    padding: 80px 0 120px 0;
+    overflow: hidden;
+    z-index: 1;
+}
+
+    /* Mirrored background image layer */
+    .shefa-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url('/images/hero-body.png'); /* Drop your exported Figma hero photo in wwwroot/images/ */
+        background-size: cover;
+        background-position: center left; /* Positioned left before mirroring so it lands on the right after flip */
+        transform: scaleX(-1);
+        z-index: -2;
+    }
+
+    /* Soft fade overlay so left-side text stays crisp over the mirrored image */
+    .shefa-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(245, 249, 251, 0.98) 0%, rgba(245, 249, 251, 0.90) 30%, rgba(245, 249, 251, 0.25) 70%);
+        z-index: -1;
+    }
+
+.shefa-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--shefa-primary-dark);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+    .shefa-eyebrow::before {
+        content: "";
+        display: inline-block;
+        width: 28px;
+        height: 2px;
+        background-color: var(--shefa-primary);
+    }
+
+.shefa-hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem); /* Matches 64px Display ExtraBold on desktop */
+    font-weight: 800;
+    color: var(--shefa-navy);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+}
+
+.shefa-hero-subtitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--shefa-ink);
+    margin-bottom: 12px;
+}
+
+.shefa-hero-desc {
+    font-size: 1rem;
+    color: var(--shefa-muted);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+/* Search Pill Bar */
+.shefa-search-box {
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 999px;
+    padding: 8px 8px 8px 22px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+    max-width: 580px;
+}
+
+    .shefa-search-box .form-control,
+    .shefa-search-box .form-select {
+        border: none;
+        box-shadow: none;
+        font-size: 0.925rem;
+        color: var(--shefa-ink);
+        background-color: transparent;
+    }
+
+        .shefa-search-box .form-control::placeholder {
+            color: var(--shefa-muted);
+        }
+
+.shefa-search-divider {
+    width: 1px;
+    height: 28px;
+    background-color: var(--shefa-line);
+    margin: 0 12px;
+}
+
+/* Trust Badges Below Search */
+.shefa-trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shefa-trust-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Floating Rating Card on Right */
+.shefa-rating-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--shefa-line);
+    border-radius: 16px;
+    padding: 14px 20px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.shefa-avatar-stack span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    margin-left: -8px;
+}
+
+    .shefa-avatar-stack span:first-child {
+        margin-left: 0;
+    }
+
+@media (max-width: 767.98px) {
+    .shefa-search-box {
+        border-radius: 20px;
+        padding: 16px;
+    }
+
+    .shefa-search-divider {
+        display: none;
+    }
+}
+
+/* =========================================
+   Section 2: Floating Stats Strip
+   ========================================= */
+.shefa-stats-wrapper {
+    position: relative;
+    z-index: 10;
+    margin-top: -54px; /* Pulls the card upward to overlap the bottom of the Hero */
+    margin-bottom: 72px;
+}
+
+.shefa-stats-card {
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 20px;
+    padding: 28px 20px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.shefa-stat-item {
+    text-align: center;
+    padding: 8px 16px;
+}
+
+.shefa-stat-number {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 800;
+    color: var(--shefa-navy);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.shefa-stat-accent {
+    color: var(--shefa-primary);
+}
+
+.shefa-stat-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--shefa-muted);
+    margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+    .shefa-stat-border-end {
+        border-right: 1px solid var(--shefa-line);
+    }
+}
+/* =========================================
+   Section 3: Top Rated Doctors
+   ========================================= */
+.shefa-doctor-card {
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 22px;
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+    .shefa-doctor-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.07);
+        border-color: var(--shefa-primary);
+    }
+
+.shefa-doctor-avatar-box {
+    position: relative;
+    height: 185px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #E6F7F9 0%, #D9EEF7 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+    .shefa-doctor-avatar-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+    }
+
+.shefa-doctor-initials {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background-color: var(--shefa-navy);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.shefa-verified-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--shefa-primary-dark);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.shefa-rating-pill {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--shefa-ink);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.shefa-doctor-meta {
+    border-top: 1px solid var(--shefa-line);
+    border-bottom: 1px solid var(--shefa-line);
+    padding: 12px 0;
+    margin: 14px 0 16px 0;
+    font-size: 0.82rem;
+    color: var(--shefa-muted);
+}
+/* =========================================
+   Section 4: Explore Specialties
+   ========================================= */
+.shefa-section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--shefa-primary-dark);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+    .shefa-section-eyebrow::before {
+        content: "";
+        display: inline-block;
+        width: 24px;
+        height: 2px;
+        background-color: var(--shefa-primary);
+    }
+
+.shefa-section-title {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 800;
+    color: var(--shefa-navy);
+    letter-spacing: -0.02em;
+}
+
+.shefa-link-more {
+    color: var(--shefa-primary-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+    .shefa-link-more:hover {
+        color: var(--shefa-navy);
+    }
+
+.shefa-specialty-card {
+    display: block;
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 20px;
+    padding: 14px;
+    text-decoration: none;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    height: 100%;
+}
+
+    .shefa-specialty-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.07);
+        border-color: var(--shefa-primary);
+    }
+
+.shefa-specialty-thumb {
+    height: 150px;
+    border-radius: 14px;
+    background-color: #EBF3F9;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+    .shefa-specialty-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.shefa-specialty-arrow {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: var(--shefa-bg);
+    color: var(--shefa-navy);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.shefa-specialty-card:hover .shefa-specialty-arrow {
+    background-color: var(--shefa-primary);
+    color: #ffffff;
+}
+
+/* =========================================
+   Section 5: How It Works
+   ========================================= */
+.shefa-how-section {
+    background-color: var(--shefa-bg);
+    padding: 84px 0;
+}
+
+.shefa-step-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 22px;
+    padding: 32px 28px;
+    height: 100%;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+    .shefa-step-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+        border-color: var(--shefa-primary);
+    }
+
+.shefa-step-number {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--shefa-primary-soft);
+    -webkit-text-stroke: 1.5px var(--shefa-primary);
+    line-height: 1;
+}
+
+.shefa-step-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+}
+/* =========================================
+   Section 6: Patient Portal / About Banner
+   ========================================= */
+.shefa-portal-banner {
+    background: linear-gradient(135deg, var(--shefa-navy) 0%, #103A7A 60%, #0B6E82 100%);
+    border-radius: 28px;
+    padding: 56px 48px;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+    .shefa-portal-banner::after {
+        content: "";
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(14, 165, 183, 0.28) 0%, rgba(14, 165, 183, 0) 70%);
+        pointer-events: none;
+    }
+
+.shefa-portal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #7CE7F5;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+}
+
+.shefa-portal-feature {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.shefa-portal-feature-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(14, 165, 183, 0.22);
+    color: #7CE7F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+}
+
+.shefa-btn-outline-light {
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+    .shefa-btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.12);
+        border-color: #ffffff;
+        color: #ffffff;
+    }
+
+@media (max-width: 767.98px) {
+    .shefa-portal-banner {
+        padding: 36px 24px;
+    }
+}
+
+/* =========================================
+   Extra Section: Join as a Doctor Callout
+   ========================================= */
+.shefa-doctor-cta-card {
+    background-color: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-left: 5px solid var(--shefa-primary);
+    border-radius: 22px;
+    padding: 36px 40px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+}
+
+.shefa-doctor-cta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary-dark);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+}
+
+@media (max-width: 767.98px) {
+    .shefa-doctor-cta-card {
+        padding: 28px 22px;
+    }
+}

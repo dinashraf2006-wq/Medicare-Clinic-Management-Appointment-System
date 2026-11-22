@@ -1,0 +1,94 @@
+﻿@model MediCare.Web.Models.Doctors.DoctorDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.FullName;
+
+    var bookUrl = Url.Action("Book", "Patient", new { id = Model.Id });
+    var bookingTargetUrl = User.Identity?.IsAuthenticated == true
+        ? bookUrl
+        : Url.Action("Login", "Account", new { returnUrl = bookUrl });
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doctor-details.css" asp-append-version="true" />
+}
+
+<section class="doctor-profile-page py-4">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb shefa-breadcrumb mb-0">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Doctors" asp-action="Index">Find Doctors</a></li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Doctors" asp-action="Index" asp-route-specialty="@Model.SpecializationName">
+                        @Model.SpecializationName
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.FullName</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4 align-items-start">
+            <!-- Left Column: Profile Header & Tabs -->
+            <div class="col-lg-8">
+                <!-- Main Profile Card -->
+                <div class="profile-hero-card mb-4">
+
+                    <div class="profile-hero-body">
+                        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-end gap-3">
+                                <img src="@Model.ProfileImageUrl"
+                                     alt="@Model.FullName"
+                                     class="doctor-avatar-lg"
+                                     onerror="this.onerror=null; this.src='/images/default-doctor.png'" />
+
+                                <div class="pb-1">
+                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                        <h1 class="doctor-name mb-0">@Model.FullName</h1>
+                                    </div>
+
+                                    <p class="doctor-specialty mb-1">Consultant @Model.SpecializationName</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="doctor-specialty pt-5">
+                            About
+                        </p>
+                        <div class="tab-pane fade show active" id="about-pane" role="tabpanel" aria-labelledby="about-tab">
+                            <h2 class="section-heading">About @Model.FullName</h2>
+                            <p class="doctor-bio-text">@Model.Bio</p>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Consultation Fee & Book Now Sidebar -->
+            <div class="col-lg-4">
+                <aside class="booking-sidebar-card sticky-top" style="top: 90px;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="fee-label">Consultation fee</span>
+                        <span class="badge-available">
+                            <span class="dot"></span> Accepting patients
+                        </span>
+                    </div>
+
+                    <div class="fee-amount mb-4">
+                        EGP @Model.ConsultationFee.ToString("N0")
+                    </div>
+
+                    <a href="@bookingTargetUrl" class="btn btn-shefa-book w-100">
+                        Book appointment <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+
+                    <div class="cancellation-note text-center mt-3">
+                        <i class="bi bi-shield-check me-1"></i> Free cancellation up to 24h before
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>

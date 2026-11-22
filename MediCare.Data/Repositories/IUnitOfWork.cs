@@ -8,6 +8,9 @@ public interface IUnitOfWork : IDisposable
     IMedicalDocumentRepository MedicalDocuments { get; }
     IPrescriptionRepository Prescriptions { get; }
 
+    // Member 2 - Doctors
+    IDoctorRepository Doctors { get; }
+    ISpecializationRepository Specialization { get; }
     // Member 3 - Appointment Booking
     IAppointmentRepository Appointments { get; }
 

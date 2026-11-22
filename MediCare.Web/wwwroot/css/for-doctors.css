@@ -1,0 +1,148 @@
+﻿/* =========================================
+   For Doctors Landing Page (for-doctors.css)
+   ========================================= */
+
+.shefa-doc-hero {
+    background-color: var(--shefa-bg);
+    padding: 72px 0 84px 0;
+}
+
+.shefa-doc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary-dark);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+}
+
+.shefa-doc-pill-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--shefa-primary);
+}
+
+.shefa-doc-hero-title {
+    font-size: clamp(2.25rem, 4.2vw, 3.25rem);
+    font-weight: 800;
+    color: var(--shefa-navy);
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    margin-bottom: 18px;
+}
+
+.shefa-doc-hero-desc {
+    color: var(--shefa-muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+    max-width: 490px;
+    margin-bottom: 28px;
+}
+
+.shefa-doc-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 36px;
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid var(--shefa-line);
+}
+
+.shefa-doc-metric-val {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--shefa-navy);
+    line-height: 1.15;
+}
+
+.shefa-doc-metric-label {
+    font-size: 0.8rem;
+    color: var(--shefa-muted);
+    margin-top: 2px;
+}
+
+/* Right Hero Visual Card */
+.shefa-doc-hero-media {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #D8EEF6 0%, #BCE3F0 100%);
+    min-height: 410px;
+    box-shadow: 0 20px 45px rgba(11, 42, 91, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .shefa-doc-hero-media img {
+        width: 100%;
+        height: 100%;
+        min-height: 410px;
+        object-fit: cover;
+    }
+
+/* Section Headings */
+.shefa-doc-section-title {
+    font-size: clamp(1.65rem, 3vw, 2.1rem);
+    font-weight: 800;
+    color: var(--shefa-navy);
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+}
+
+/* Why Doctors Choose Shefa Cards */
+.shefa-doc-benefit-card {
+    background: #ffffff;
+    border: 1px solid var(--shefa-line);
+    border-radius: 20px;
+    padding: 28px 24px;
+    height: 100%;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+    .shefa-doc-benefit-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+        border-color: var(--shefa-primary);
+    }
+
+.shefa-doc-benefit-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background-color: var(--shefa-primary-soft);
+    color: var(--shefa-primary-dark);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+/* Join in 4 Simple Steps Cards */
+.shefa-doc-step-box {
+    background-color: var(--shefa-bg);
+    border: 1px solid var(--shefa-line);
+    border-radius: 18px;
+    padding: 24px 22px;
+    height: 100%;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+    .shefa-doc-step-box:hover {
+        background-color: #ffffff;
+        border-color: var(--shefa-primary);
+    }
+
+.shefa-doc-step-num {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--shefa-primary);
+    line-height: 1.1;
+    margin-bottom: 8px;
+}

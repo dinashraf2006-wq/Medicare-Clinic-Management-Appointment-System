@@ -6,6 +6,8 @@ using MediCare.Services.MedicalRecords;
 using MediCare.Web.DevTools;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MediCare.Services.Doctors;
+using MediCare.Services.Specializations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// ---------- Member 2: Doctors ----------
+builder.Services.AddDoctorServices();
+builder.Services.AddSpecializationServices();
+
 
 // ---------- Member 5: Medical Records & Prescriptions ----------
 // Files are stored OUTSIDE wwwroot so they can only be downloaded through an authorized controller action.
