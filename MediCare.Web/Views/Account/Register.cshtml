@@ -1,0 +1,93 @@
+﻿namespace MediCare.Web.Views.Account
+{
+    public class Register
+    {
+    }
+}
+
+@model MediCare.Web.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Create your account";
+}
+
+<div class="container-fluid min-vh-100 d-flex p-0">
+    <!-- Left Banner Side -->
+    <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between p-5 text-white" style="background: linear-gradient(135deg, #0d3b66 0%, #001f3f 100%);">
+        <div>
+            <h3 class="fw-bold"><span class="text-info">♥</span> Shefa.</h3>
+        </div>
+        <div>
+            <h1 class="display-5 fw-bold mb-3">Your health, in one secure place.</h1>
+            <p class="lead text-white-50 mb-4">Create a free account in under a minute and book your first visit today.</p>
+            <ul class="list-unstyled text-white-50">
+                <li class="mb-2">✔ 1,200+ verified doctors across Egypt</li>
+                <li class="mb-2">✔ Book in-clinic or video visits in seconds</li>
+                <li class="mb-2">✔ Your records, prescriptions & labs in one place</li>
+            </ul>
+        </div>
+        <div class="card bg-white text-dark p-3 border-0 shadow-sm mt-4" style="max-width: 400px;">
+            <p class="mb-1 fst-italic">"Booked a cardiologist in under a minute and had my results in the app the same day. Shefa made it effortless."</p>
+            <small class="fw-bold text-muted">Mariam Adel - Patient, Cairo</small>
+        </div>
+    </div>
+
+    <!-- Right Form Side -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center p-4 bg-white">
+        <div class="w-100" style="max-width: 420px;">
+            <h2 class="fw-bold mb-1">Create your account</h2>
+            <p class="text-muted mb-4">Join thousands of patients and doctors on Shefa.</p>
+
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- Role Selector Tabs -->
+                <div class="btn-group w-100 mb-4 p-1 bg-light rounded-pill" role="group">
+                    <input type="radio" class="btn-check" name="UserRole" id="rolePatient" value="Patient" checked>
+                    <label class="btn rounded-pill fw-semibold" for="rolePatient">Patient</label>
+
+                    <input type="radio" class="btn-check" name="UserRole" id="roleDoctor" value="Doctor">
+                    <label class="btn rounded-pill fw-semibold" for="roleDoctor">Doctor</label>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label text-muted small fw-bold">Full name</label>
+                    <input asp-for="FullName" class="form-control rounded-3 p-3" placeholder="Sara Ahmed" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PhoneNumber" class="form-label text-muted small fw-bold">Phone</label>
+                    <input asp-for="PhoneNumber" class="form-control rounded-3 p-3" placeholder="+20 1xx xxx xxxx" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label text-muted small fw-bold">Email</label>
+                    <input asp-for="Email" class="form-control rounded-3 p-3" placeholder="you@example.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label text-muted small fw-bold">Password</label>
+                    <input asp-for="Password" class="form-control rounded-3 p-3" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-info w-100 py-3 rounded-pill text-white fw-bold shadow-sm mt-3" style="background-color: #00b4d8; border: none;">
+                    Create account &rarr;
+                </button>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small">Already have an account? <a asp-action="Login" class="text-decoration-none fw-bold text-primary">Log in</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

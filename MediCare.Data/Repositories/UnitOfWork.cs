@@ -8,6 +8,7 @@ public class UnitOfWork : IUnitOfWork
     private IMedicalRecordRepository? _medicalRecords;
     private IMedicalDocumentRepository? _medicalDocuments;
     private IPrescriptionRepository? _prescriptions;
+    private IAppointmentRepository? _appointments;
 
     private IDoctorRepository? _doctors;
     private ISpecializationRepository? _specialization;
@@ -31,6 +32,8 @@ public class UnitOfWork : IUnitOfWork
 
     public ISpecializationRepository Specialization =>
         _specialization ??= new SpecializationRepository(_context);
+    public IAppointmentRepository Appointments =>
+        _appointments ??= new AppointmentRepository(_context);
 
     public IGenericRepository<T> Repository<T>() where T : class
     {

@@ -1,6 +1,7 @@
 using MediCare.Data;
 using MediCare.Data.Entities;
 using MediCare.Data.Repositories;
+using MediCare.Services.Booking;
 using MediCare.Services.MedicalRecords;
 using MediCare.Web.DevTools;
 using Microsoft.AspNetCore.Identity;
@@ -41,6 +42,9 @@ builder.Services.AddSpecializationServices();
 // Files are stored OUTSIDE wwwroot so they can only be downloaded through an authorized controller action.
 builder.Services.AddMedicalRecordsModule(
     Path.Combine(builder.Environment.ContentRootPath, "App_Data", "medical-files"));
+
+// ---------- Member 3: Appointment Booking ----------
+builder.Services.AddAppointmentBookingModule();
 
 var app = builder.Build();
 

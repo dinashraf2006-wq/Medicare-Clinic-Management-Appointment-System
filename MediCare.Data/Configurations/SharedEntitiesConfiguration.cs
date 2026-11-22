@@ -28,17 +28,7 @@ public class PatientConfiguration : IEntityTypeConfiguration<Patient>
     }
 }
 
-public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
-{
-    public void Configure(EntityTypeBuilder<Appointment> b)
-    {
-        b.Property(a => a.Status).HasMaxLength(30);
-        b.HasOne(a => a.Doctor).WithMany(d => d.Appointments)
-            .HasForeignKey(a => a.DoctorId).OnDelete(DeleteBehavior.Restrict);
-        b.HasOne(a => a.Patient).WithMany(p => p.Appointments)
-            .HasForeignKey(a => a.PatientId).OnDelete(DeleteBehavior.Restrict);
-    }
-}
+// AppointmentConfiguration lives in AppointmentConfiguration.cs (Member 3 - Appointment Booking).
 
 public class SpecializationConfiguration : IEntityTypeConfiguration<Specialization>
 {
