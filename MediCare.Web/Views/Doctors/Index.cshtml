@@ -178,7 +178,7 @@
                                     <h3 class="fw-bold mb-3" style="color: var(--shefa-ink);">EGP @doctor.ConsultationFee</h3>
 
                                     <div class="d-flex justify-content-lg-end gap-2">
-                                        <a href="#" class="btn btn-outline-secondary btn-sm p-2 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy)">View profile</a>
+                                        <a asp-action="Details" asp-route-id="@doctor.Id" class="btn btn-outline-secondary btn-sm p-2 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy)">View profile</a>
                                         <a href="#" class="btn shefa-btn-primary btn-sm px-4 fw-semibold shadow-sm">Book now</a>
                                     </div>
                                 </div>
@@ -201,19 +201,6 @@
                         </div>
                     }
                 </div>
-
-                <!-- Pagination -->
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled"><a class="page-link border-0 rounded-circle me-1" href="#"><i class="bi bi-chevron-left"></i></a></li>
-                        <li class="page-item active"><a class="page-link rounded-circle text-white me-1 border-0" style="background-color: var(--shefa-primary) !important;" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link border-0 rounded-circle me-1" style="color: var(--shefa-ink);" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link border-0 rounded-circle me-1" style="color: var(--shefa-ink);" href="#">3</a></li>
-                        <li class="page-item disabled"><a class="page-link border-0" style="color: var(--shefa-muted);" href="#">...</a></li>
-                        <li class="page-item"><a class="page-link border-0 rounded-circle me-1" style="color: var(--shefa-ink);" href="#">13</a></li>
-                        <li class="page-item"><a class="page-link border-0 rounded-circle" style="color: var(--shefa-ink);" href="#"><i class="bi bi-chevron-right"></i></a></li>
-                    </ul>
-                </nav>
             }
         </div>
     </div>

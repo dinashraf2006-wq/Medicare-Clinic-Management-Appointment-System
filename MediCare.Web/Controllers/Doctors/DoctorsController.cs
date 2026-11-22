@@ -32,6 +32,31 @@ namespace MediCare.Web.Controllers.Doctors
 
             return View(viewModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var doctor = await _doctorService.GetDoctorByIdAsync(id);
+            if (doctor == null)
+                return NotFound();
+
+            var viewModel = new DoctorDetailsViewModel
+            {
+                Id = doctor.Id,
+                FullName = doctor.FullName.StartsWith("Dr.", StringComparison.OrdinalIgnoreCase)
+                    ? doctor.FullName
+                    : $"Dr. {doctor.FullName}",
+                SpecializationName = doctor.SpecializationName,
+                City = doctor.City,
+                ConsultationFee = doctor.ConsultationFee,
+                Bio = string.IsNullOrWhiteSpace(doctor.Bio)
+                    ? $"{doctor.FullName} is an experienced {doctor.SpecializationName} specialist dedicated to clear, patient-centered care and evidence-based treatment."
+                    : doctor.Bio,
+                ProfileImageUrl = doctor.ProfileImageUrl
+            };
+
+            return View(viewModel);
+        }
     }
 }
 
