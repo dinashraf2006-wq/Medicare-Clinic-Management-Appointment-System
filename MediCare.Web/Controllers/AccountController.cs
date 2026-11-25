@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MediCare.Web.Models;
+using MediCare.Data.Entities;
 using System.Threading.Tasks;
 
 namespace MediCare.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
@@ -36,37 +37,60 @@ namespace MediCare.Web.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // Create new IdentityUser instance using input data
-            var user = new IdentityUser
+            // Check if this is an admin creation (from AdminInvitationController)
+            var createAsAdmin = TempData["CreateAsAdmin"] as bool? == true;
+            var requestedRole = model.UserRole;
+
+            if (createAsAdmin)
             {
-                UserName = model.Email,
+                requestedRole = "Admin";
+                // Pre-fill from TempData if available
+                if (string.IsNullOrEmpty(model.Email))
+                    model.Email = TempData["AdminEmail"] as string;
+                if (string.IsNullOrEmpty(model.FullName))
+                    model.FullName = TempData["AdminFullName"] as string;
+                if (string.IsNullOrEmpty(model.PhoneNumber))
+                    model.PhoneNumber = TempData["AdminPhone"] as string;
+                if (string.IsNullOrEmpty(model.Password))
+                    model.Password = TempData["AdminPassword"] as string;
+            }
+
+            // Create new ApplicationUser instance using input data
+            var user = new ApplicationUser
+            {
+                UserName = model.Email.Split('@')[0], // Use email prefix as username
                 Email = model.Email,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                FullName = model.FullName ?? model.Email
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
-                // Ensure the selected role (Patient or Doctor) exists in the database
-                if (!await _roleManager.RoleExistsAsync(model.UserRole))
+                // Ensure the selected role exists in the database
+                if (!await _roleManager.RoleExistsAsync(requestedRole))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole(model.UserRole));
+                    await _roleManager.CreateAsync(new IdentityRole(requestedRole));
                 }
 
                 // Assign the user to the specified role
-                await _userManager.AddToRoleAsync(user, model.UserRole);
+                await _userManager.AddToRoleAsync(user, requestedRole);
 
                 // Automatically sign in the user after successful registration
                 await _signInManager.SignInAsync(user, isPersistent: false);
 
                 // Redirect user based on their assigned role
-                if (model.UserRole == "Doctor")
+                if (requestedRole == "Doctor")
                 {
                     return RedirectToAction("Index", "Schedule"); // Doctor Dashboard
                 }
+                else if (requestedRole == "Admin")
+                {
+                    return RedirectToAction("Dashboard", "Admin"); // Admin Dashboard
+                }
 
-                return RedirectToAction("Index", "Dashboard"); // Patient Dashboard
+                return RedirectToAction("Index", "Home"); // Default to home
             }
 
             // Add errors to ModelState if registration fails
@@ -101,28 +125,43 @@ namespace MediCare.Web.Controllers
                 user = await _userManager.FindByNameAsync(model.EmailOrPhone);
             }
 
-            if (user != null)
+            if (user == null)
             {
-                // Attempt to sign in using password and remember me option
-                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
-
-                if (result.Succeeded)
-                {
-                    // Redirect user according to their role permissions
-                    if (await _userManager.IsInRoleAsync(user, "Doctor"))
-                    {
-                        return RedirectToAction("Index", "Schedule");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        return RedirectToAction("Index", "Admin");
-                    }
-
-                    return RedirectToAction("Index", "Dashboard");
-                }
+                ModelState.AddModelError(string.Empty, "User not found. Please check your email/phone.");
+                return View(model);
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            // Attempt to sign in using password and remember me option
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                // Redirect user according to their role permissions
+                if (await _userManager.IsInRoleAsync(user, "Doctor"))
+                {
+                    return RedirectToAction("Index", "Schedule");
+                }
+                else if (await _userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    return RedirectToAction("Dashboard", "Admin");
+                }
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, "Account is locked out.");
+            }
+            else if (result.IsNotAllowed)
+            {
+                ModelState.AddModelError(string.Empty, "Account is not allowed to sign in. Please confirm your email.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+            }
+
             return View(model);
         }
 
@@ -132,6 +171,13 @@ namespace MediCare.Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+        // ==================== GET: LogoutConfirmation ====================
+        [HttpGet]
+        public IActionResult LogoutConfirmation()
+        {
             return RedirectToAction("Index", "Home");
         }
     }

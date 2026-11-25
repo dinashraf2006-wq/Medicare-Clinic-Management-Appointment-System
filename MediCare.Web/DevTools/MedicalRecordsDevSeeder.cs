@@ -18,6 +18,7 @@ public static class MedicalRecordsDevSeeder
 
     public static readonly DemoUser[] DemoUsers =
     {
+        // Admin user removed - handled separately to avoid conflicts
         new DemoUser("omar.khaled@demo.medicare", "Dr. Omar Khaled", "Doctor"),
         new DemoUser("ahmed.hassan@demo.medicare", "Dr. Ahmed Hassan", "Doctor"),
         new DemoUser("sarah.mohamed@demo.medicare", "Sarah Mohamed", "Patient"),
@@ -44,9 +45,6 @@ public static class MedicalRecordsDevSeeder
             await db.Database.EnsureCreatedAsync();
         }
 
-        if (await db.Users.AnyAsync(u => u.Email == DemoUsers[0].Email))
-            return; // already seeded
-
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
@@ -57,7 +55,22 @@ public static class MedicalRecordsDevSeeder
         var users = new Dictionary<string, ApplicationUser>();
         foreach (var (email, name, role) in DemoUsers)
         {
-            var user = new ApplicationUser { UserName = email, Email = email, FullName = name, EmailConfirmed = true };
+            // Check if user already exists by email
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                users[email] = existingUser;
+                // Ensure user has the correct role
+                if (!await userManager.IsInRoleAsync(existingUser, role))
+                {
+                    await userManager.AddToRoleAsync(existingUser, role);
+                }
+                continue;
+            }
+
+            // Create unique username from email prefix
+            var username = email.Split('@')[0];
+            var user = new ApplicationUser { UserName = username, Email = email, FullName = name, EmailConfirmed = true };
             var result = await userManager.CreateAsync(user, DemoPassword);
             if (!result.Succeeded)
             {

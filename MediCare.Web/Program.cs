@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MediCare.Services.Doctors;
 using MediCare.Services.Specializations;
+using MediCare.Services.Admin;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,8 @@ builder.Services.AddControllersWithViews();
 // ---------- SHARED setup (database + Identity) ----------
 // If Member 1 already added Identity / DbContext in their branch, keep ONE copy of these lines.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .ConfigureWarnings(warnings => warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -46,12 +48,18 @@ builder.Services.AddMedicalRecordsModule(
 // ---------- Member 3: Appointment Booking ----------
 builder.Services.AddAppointmentBookingModule();
 
+// ---------- Admin Dashboard & Analytics ----------
+builder.Services.AddAdminServices();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    // Seed admin account only (for now)
+    await AdminSeeder.SeedAdminAsync(app.Services);
+
     // Demo data for testing the Medical Records module (delete DevTools when the team has real data).
-    await MedicalRecordsDevSeeder.SeedAsync(app.Services);
+    // await MedicalRecordsDevSeeder.SeedAsync(app.Services); // Temporarily disabled due to DB conflicts
 }
 
 // Configure the HTTP request pipeline.

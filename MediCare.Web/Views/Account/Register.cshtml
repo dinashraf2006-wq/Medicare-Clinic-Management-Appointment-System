@@ -1,11 +1,4 @@
-﻿namespace MediCare.Web.Views.Account
-{
-    public class Register
-    {
-    }
-}
-
-@model MediCare.Web.Models.RegisterViewModel
+﻿@model MediCare.Web.Models.RegisterViewModel
 
 @{
     ViewData["Title"] = "Create your account";
@@ -42,12 +35,12 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <!-- Role Selector Tabs -->
-                <div class="btn-group w-100 mb-4 p-1 bg-light rounded-pill" role="group">
+                <div class="d-flex gap-2 mb-4">
                     <input type="radio" class="btn-check" name="UserRole" id="rolePatient" value="Patient" checked>
-                    <label class="btn rounded-pill fw-semibold" for="rolePatient">Patient</label>
+                    <label class="btn flex-grow-1 rounded-pill fw-semibold" for="rolePatient">Patient</label>
 
                     <input type="radio" class="btn-check" name="UserRole" id="roleDoctor" value="Doctor">
-                    <label class="btn rounded-pill fw-semibold" for="roleDoctor">Doctor</label>
+                    <label class="btn flex-grow-1 rounded-pill fw-semibold" for="roleDoctor">Doctor</label>
                 </div>
 
                 <div class="mb-3">

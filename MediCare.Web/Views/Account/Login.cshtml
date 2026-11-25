@@ -1,11 +1,4 @@
-﻿namespace MediCare.Web.Views.Account
-{
-    public class Login
-    {
-    }
-}
-
-@model MediCare.Web.Models.LoginViewModel
+﻿@model MediCare.Web.Models.LoginViewModel
 
 @{
     ViewData["Title"] = "Log in";
@@ -40,15 +33,6 @@
 
             <form asp-action="Login" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                <!-- Role Selector Tabs -->
-                <div class="btn-group w-100 mb-4 p-1 bg-light rounded-pill" role="group">
-                    <input type="radio" class="btn-check" name="UserRole" id="rolePatient" value="Patient" checked>
-                    <label class="btn rounded-pill fw-semibold" for="rolePatient">Patient</label>
-
-                    <input type="radio" class="btn-check" name="UserRole" id="roleDoctor" value="Doctor">
-                    <label class="btn rounded-pill fw-semibold" for="roleDoctor">Doctor</label>
-                </div>
 
                 <div class="mb-3">
                     <label asp-for="EmailOrPhone" class="form-label text-muted small fw-bold">Email or phone</label>
