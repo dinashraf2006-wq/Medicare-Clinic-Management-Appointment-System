@@ -1,0 +1,133 @@
+@model MediCare.Web.Models.Admin.AdminUsersViewModel
+@{
+    ViewData["Title"] = "Users Management";
+    Layout = "_AdminLayout";
+}
+
+<!-- Specializations Summary -->
+<div class="row g-4 mb-4">
+    @foreach (var spec in Model.SpecializationStats.Take(4))
+    {
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon primary">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                </div>
+                <div class="stat-card-title">@spec.Name</div>
+                <div class="stat-card-value">@spec.DoctorCount</div>
+                <div class="stat-card-trend">
+                    <span class="text-muted">@spec.TotalAppointments appointments</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Doctors Table -->
+<div class="chart-card mb-4">
+    <div class="chart-card-header">
+        <h3 class="chart-card-title">All Doctors</h3>
+        <div class="d-flex gap-2">
+            <a asp-controller="AdminInvitation" asp-action="CreateAdmin" class="btn btn-success btn-sm">
+                <i class="bi bi-person-plus"></i> Create Admin
+            </a>
+            <input type="text" class="form-control form-control-sm" placeholder="Search doctors..." id="doctorSearch" style="width: 200px;">
+        </div>
+    </div>
+    <div class="admin-table-container">
+        <table class="table admin-table" id="doctorsTable">
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                    <th>City</th>
+                    <th>Total Appointments</th>
+                    <th>Completed</th>
+                    <th>Pending</th>
+                    <th>Cancelled</th>
+                    <th>Consultation Fee</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var doctor in Model.DoctorStats)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@doctor.DoctorName</div>
+                        </td>
+                        <td>@doctor.Specialization</td>
+                        <td>@doctor.City</td>
+                        <td>@doctor.TotalAppointments</td>
+                        <td><span class="text-success">@doctor.CompletedAppointments</span></td>
+                        <td><span class="text-warning">@doctor.PendingAppointments</span></td>
+                        <td><span class="text-danger">@doctor.CancelledAppointments</span></td>
+                        <td>@doctor.ConsultationFee.ToString("C0")</td>
+                        <td>
+                            @if (doctor.TotalAppointments > 0)
+                            {
+                                <span class="status-badge active">Active</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge pending">Inactive</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Specializations Table -->
+<div class="chart-card">
+    <div class="chart-card-header">
+        <h3 class="chart-card-title">Specializations Overview</h3>
+    </div>
+    <div class="admin-table-container">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>Specialization</th>
+                    <th>Description</th>
+                    <th>Number of Doctors</th>
+                    <th>Total Appointments</th>
+                    <th>Avg Appointments per Doctor</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var spec in Model.SpecializationStats)
+                {
+                    var avgAppointments = spec.DoctorCount > 0 ? (double)spec.TotalAppointments / spec.DoctorCount : 0;
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@spec.Name</div>
+                        </td>
+                        <td class="text-muted">@spec.Description</td>
+                        <td>@spec.DoctorCount</td>
+                        <td>@spec.TotalAppointments</td>
+                        <td>@avgAppointments.ToString("F1")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Search functionality
+        document.getElementById('doctorSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#doctorsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    </script>
+}

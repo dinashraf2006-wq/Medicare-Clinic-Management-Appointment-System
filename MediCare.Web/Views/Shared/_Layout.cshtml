@@ -45,7 +45,7 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
-                    <div class="collapse navbar-collapse justify-content-center" id="shefaNavbar">
+                    <div class="collapse navbar-collapse justify-content-between" id="shefaNavbar">
                         <!-- Center: Pill Navigation Bar -->
                         @if (isDoctorLanding)
                         {
@@ -98,11 +98,30 @@
                                 </li>
                             </ul>
                         }
-                        <!-- Right: Auth Buttons Only -->
-                        <div class="d-flex align-items-center gap-3 pb-3 pb-lg-0">
+                        <!-- Right: Auth Buttons -->
+                        <div class="d-flex align-items-center gap-3 pb-3 pb-lg-0 ms-auto">
                             <a asp-controller="Account" asp-action="Login" class="shefa-btn-login">Log In</a>
                             <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary">Sign Up</a>
                         </div>
+                    </div>
+                </nav>
+            </header>
+        }
+        else
+        {
+            <header class="shefa-navbar sticky-top d-flex align-items-center">
+                <nav class="navbar navbar-expand-lg navbar-light container py-0">
+                    <a class="navbar-brand shefa-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
+                        <span class="shefa-brand-icon">
+                            <i class="bi bi-heart"></i>
+                        </span>
+                        <span>Shefa<span class="shefa-brand-dot">.</span></span>
+                    </a>
+                    <div class="ms-auto">
+                        <span class="text-muted me-3">Hello, @User.Identity?.Name</span>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                        </form>
                     </div>
                 </nav>
             </header>

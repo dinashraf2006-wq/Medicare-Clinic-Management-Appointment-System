@@ -1,0 +1,263 @@
+@model MediCare.Web.Models.Admin.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_AdminLayout";
+}
+
+<!-- Stats Grid -->
+<div class="admin-stats-grid">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon primary">
+                <i class="bi bi-people"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Total Users</div>
+        <div class="stat-card-value">@Model.SystemStats.TotalUsers</div>
+        <div class="stat-card-trend positive">
+            <i class="bi bi-arrow-up"></i> Active system
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon success">
+                <i class="bi bi-person-badge"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Total Doctors</div>
+        <div class="stat-card-value">@Model.SystemStats.TotalDoctors</div>
+        <div class="stat-card-trend positive">
+            <i class="bi bi-check-circle"></i> @Model.SystemStats.ActiveDoctors active
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon info">
+                <i class="bi bi-person-heart"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Total Patients</div>
+        <div class="stat-card-value">@Model.SystemStats.TotalPatients</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon warning">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Total Appointments</div>
+        <div class="stat-card-value">@Model.SystemStats.TotalAppointments</div>
+        <div class="stat-card-trend">
+            <span class="text-muted">@Model.SystemStats.PendingAppointments pending</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon purple">
+                <i class="bi bi-file-medical"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Medical Records</div>
+        <div class="stat-card-value">@Model.SystemStats.TotalMedicalRecords</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <div class="stat-card-icon danger">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+        </div>
+        <div class="stat-card-title">Total Revenue</div>
+        <div class="stat-card-value">@Model.RevenueStats.TotalRevenue.ToString("C0")</div>
+        <div class="stat-card-trend positive">
+            <i class="bi bi-arrow-up"></i> Last 30 days
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3 class="chart-card-title">Appointments Overview</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="appointmentsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h3 class="chart-card-title">Appointment Status</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="appointmentStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Chart -->
+<div class="chart-card mb-4">
+    <div class="chart-card-header">
+        <h3 class="chart-card-title">Revenue Trend</h3>
+    </div>
+    <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+    </div>
+</div>
+
+<!-- Top Doctors Table -->
+<div class="chart-card">
+    <div class="chart-card-header">
+        <h3 class="chart-card-title">Top Doctors by Appointments</h3>
+        <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-primary btn-sm">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="admin-table-container">
+        <table class="table admin-table">
+            <thead>
+                <tr>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                    <th>City</th>
+                    <th>Total Appointments</th>
+                    <th>Completed</th>
+                    <th>Pending</th>
+                    <th>Fee</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var doctor in Model.DoctorStats.Take(5))
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@doctor.DoctorName</div>
+                        </td>
+                        <td>@doctor.Specialization</td>
+                        <td>@doctor.City</td>
+                        <td>@doctor.TotalAppointments</td>
+                        <td><span class="text-success">@doctor.CompletedAppointments</span></td>
+                        <td><span class="text-warning">@doctor.PendingAppointments</span></td>
+                        <td>@doctor.ConsultationFee.ToString("C0")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Appointments Line Chart
+        const appointmentsCtx = document.getElementById('appointmentsChart').getContext('2d');
+        const appointmentLabels = @Html.Raw(Json.Serialize(Model.AppointmentStats.DailyStats.Select(d => d.Date.ToString("MMM dd"))));
+        const appointmentData = @Html.Raw(Json.Serialize(Model.AppointmentStats.DailyStats.Select(d => d.Count)));
+        const completedData = @Html.Raw(Json.Serialize(Model.AppointmentStats.DailyStats.Select(d => d.Completed)));
+
+        new Chart(appointmentsCtx, {
+            type: 'line',
+            data: {
+                labels: appointmentLabels,
+                datasets: [{
+                    label: 'Total Appointments',
+                    data: appointmentData,
+                    borderColor: '#0EA5B7',
+                    backgroundColor: 'rgba(14, 165, 183, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Completed',
+                    data: completedData,
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Appointment Status Doughnut Chart
+        const statusCtx = document.getElementById('appointmentStatusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending', 'Cancelled'],
+                datasets: [{
+                    data: [@Model.SystemStats.CompletedAppointments, @Model.SystemStats.PendingAppointments, @Model.SystemStats.CancelledAppointments],
+                    backgroundColor: ['#16a34a', '#d97706', '#dc2626'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Revenue Line Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const revenueLabels = @Html.Raw(Json.Serialize(Model.RevenueStats.DailyStats.Select(d => d.Date.ToString("MMM dd"))));
+        const revenueData = @Html.Raw(Json.Serialize(Model.RevenueStats.DailyStats.Select(d => d.Amount)));
+
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenueData,
+                    borderColor: '#0B2A5B',
+                    backgroundColor: 'rgba(11, 42, 91, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
