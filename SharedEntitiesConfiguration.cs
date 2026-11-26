@@ -1,0 +1,39 @@
+using MediCare.Data.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MediCare.Data.Configurations;
+
+// SHARED: minimal settings for teammates' tables. Their own configuration can replace this file.
+
+public class DoctorConfiguration : IEntityTypeConfiguration<Doctor>
+{
+    public void Configure(EntityTypeBuilder<Doctor> b)
+    {
+        b.Property(d => d.ConsultationFee).HasPrecision(10, 2);
+        b.HasIndex(d => d.UserId).IsUnique();
+        b.HasOne(d => d.User).WithMany().HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne(d => d.Specialization).WithMany(s => s.Doctors)
+            .HasForeignKey(d => d.SpecializationId).OnDelete(DeleteBehavior.Restrict);
+        b.Property(d => d.City).HasMaxLength(100).IsRequired();
+    }
+}
+
+public class PatientConfiguration : IEntityTypeConfiguration<Patient>
+{
+    public void Configure(EntityTypeBuilder<Patient> b)
+    {
+        b.HasIndex(p => p.UserId).IsUnique();
+        b.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+// AppointmentConfiguration lives in AppointmentConfiguration.cs (Member 3 - Appointment Booking).
+
+public class SpecializationConfiguration : IEntityTypeConfiguration<Specialization>
+{
+    public void Configure(EntityTypeBuilder<Specialization> b)
+    {
+        b.Property(s => s.Name).HasMaxLength(100).IsRequired();
+    }
+}
