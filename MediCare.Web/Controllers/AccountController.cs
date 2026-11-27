@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using MediCare.Data.Entities;
+using MediCare.Data.Repositories;
 using MediCare.Web.Models;
-using MediCare.Data.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace MediCare.Web.Controllers
@@ -12,21 +14,105 @@ namespace MediCare.Web.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
+        private readonly IUnitOfWork _unitOfWork;
+
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _unitOfWork = unitOfWork;
+        }
+
+        private async Task PopulateRegistrationDropdownsAsync(RegisterViewModel model)
+        {
+            var desiredSpecializations = new[]
+            {
+        "Cardiology",
+        "Dermatology",
+        "Pediatrics",
+        "Orthopedics",
+        "Neurology",
+        "Ophthalmology",
+        "ENT",
+        "Gynecology",
+        "Psychiatry",
+        "General Medicine"
+    };
+
+            var existingSpecs = await _unitOfWork.Specialization.GetAllWithDoctorsAsync();
+            var existingNames = existingSpecs
+                .Select(s => s.Name.Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var addedAny = false;
+            foreach (var name in desiredSpecializations)
+            {
+                if (!existingNames.Contains(name))
+                {
+                    await _unitOfWork.Specialization.AddAsync(new Specialization
+                    {
+                        Name = name
+                    });
+                    addedAny = true;
+                }
+            }
+
+            if (addedAny)
+            {
+                await _unitOfWork.SaveChangesAsync();
+                existingSpecs = await _unitOfWork.Specialization.GetAllWithDoctorsAsync();
+            }
+
+            model.Specializations = existingSpecs
+                .OrderBy(s => s.Name)
+                .Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.Name
+                })
+                .ToList();
+
+            var cityNames = new[]
+            {
+        "Cairo",
+        "Giza",
+        "Alexandria",
+        "Ismailia",
+        "Mansoura",
+        "Tanta",
+        "Port Said",
+        "Suez",
+        "Zagazig",
+        "Assiut"
+    };
+
+            model.Cities = cityNames
+                .Select(c => new SelectListItem
+                {
+                    Value = c,
+                    Text = c
+                })
+                .ToList();
         }
 
         // ==================== GET: Register ====================
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> Register(string? role = null)
         {
-            return View();
+            var model = new RegisterViewModel
+            {
+                UserRole = string.Equals(role, "Doctor", StringComparison.OrdinalIgnoreCase)
+            ? "Doctor"
+            : "Patient"
+            };
+            await PopulateRegistrationDropdownsAsync(model);
+
+            return View(model);
         }
 
         // ==================== POST: Register ====================
@@ -34,8 +120,27 @@ namespace MediCare.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            if (model.UserRole != "Doctor")
+            {
+                ModelState.Remove(nameof(model.SpecializationId));
+                ModelState.Remove(nameof(model.City));
+                ModelState.Remove(nameof(model.ConsultationFee));
+            }
+            else
+            {
+                if (model.SpecializationId <= 0)
+                    ModelState.AddModelError(nameof(model.SpecializationId), "Please select a specialization.");
+                if (string.IsNullOrWhiteSpace(model.City))
+                    ModelState.AddModelError(nameof(model.City), "Please select a city.");
+                if (model.ConsultationFee <= 0)
+                    ModelState.AddModelError(nameof(model.ConsultationFee), "Please enter a consultation fee.");
+            }
+
             if (!ModelState.IsValid)
+            {
+                await PopulateRegistrationDropdownsAsync(model);
                 return View(model);
+            }
 
             // Check if this is an admin creation (from AdminInvitationController)
             var createAsAdmin = TempData["CreateAsAdmin"] as bool? == true;
@@ -77,13 +182,36 @@ namespace MediCare.Web.Controllers
                 // Assign the user to the specified role
                 await _userManager.AddToRoleAsync(user, requestedRole);
 
+                // Ensure Doctor profile exists before signing in / redirecting to dashboard
+                if (requestedRole == "Doctor")
+                {
+                    var existingDoctor = await _unitOfWork.Repository<Doctor>()
+                        .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+                    if (existingDoctor == null)
+                    {
+                        var defaultSpec = await _unitOfWork.Repository<Specialization>()
+                            .FirstOrDefaultAsync(s => true);
+
+                        var doctor = new Doctor
+                        {
+                            UserId = user.Id,
+                            SpecializationId = model.SpecializationId,
+                            City = model.City.Trim(),
+                            ConsultationFee = model.ConsultationFee
+                        };
+
+                        await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                }
                 // Automatically sign in the user after successful registration
                 await _signInManager.SignInAsync(user, isPersistent: false);
 
                 // Redirect user based on their assigned role
                 if (requestedRole == "Doctor")
                 {
-                    return RedirectToAction("Index", "Schedule"); // Doctor Dashboard
+                    return RedirectToAction("Index", "DoctorDashboard"); // Doctor Dashboard
                 }
                 else if (requestedRole == "Admin")
                 {
@@ -99,6 +227,7 @@ namespace MediCare.Web.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
+            await PopulateRegistrationDropdownsAsync(model);
             return View(model);
         }
 
@@ -139,7 +268,25 @@ namespace MediCare.Web.Controllers
                 // Redirect user according to their role permissions
                 if (await _userManager.IsInRoleAsync(user, "Doctor"))
                 {
-                    return RedirectToAction("Index", "Schedule");
+                    var doctorProfile = await _unitOfWork.Repository<Doctor>()
+                        .FirstOrDefaultAsync(d => d.UserId == user.Id);
+
+                    if (doctorProfile == null)
+                    {
+                        var defaultSpec = await _unitOfWork.Repository<Specialization>()
+                            .FirstOrDefaultAsync(s => true);
+
+                        await _unitOfWork.Repository<Doctor>().AddAsync(new Doctor
+                        {
+                            UserId = user.Id,
+                            SpecializationId = defaultSpec?.Id ?? 1,
+                            City = string.Empty,
+                            ConsultationFee = 0m
+                        });
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+
+                    return RedirectToAction("Index", "DoctorDashboard");
                 }
                 else if (await _userManager.IsInRoleAsync(user, "Admin"))
                 {

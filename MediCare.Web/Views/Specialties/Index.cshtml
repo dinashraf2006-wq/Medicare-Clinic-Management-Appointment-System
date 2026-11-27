@@ -52,14 +52,14 @@
                     <div class="col">
                         <a asp-controller="Doctors"
                            asp-action="Index"
-                           asp-route-specialtyId="@item.Id"
+                           asp-route-specialty="@item.Name"
                            class="shefa-specialty-card">
                             <div class="shefa-specialty-media">
                                 @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
                                 {
                                     <img src="@item.ImageUrl"
                                          alt="@item.Name"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                                          />
                                     <div class="shefa-ecg-placeholder" style="display: none;">
                                         <i class="bi bi-activity"></i>
                                     </div>

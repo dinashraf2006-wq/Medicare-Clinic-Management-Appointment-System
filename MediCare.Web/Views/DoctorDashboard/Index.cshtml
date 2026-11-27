@@ -1,0 +1,270 @@
+﻿@using System.Globalization
+@using MediCare.Data.Entities
+@using MediCare.Services.Booking
+@using MediCare.Services.MedicalRecords
+@using MediCare.Services.Doctors
+@model (IReadOnlyList<Patient> Patients, IReadOnlyList<RecordFeedItem> Feed, PatientHistory? SelectedHistory)
+
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActiveNav"] = "dashboard";
+
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+    var doctorName = ViewBag.DoctorName as string ?? "Doctor";
+    var doctorDto = ViewBag.DoctorInfo as DoctorDto;
+    var patientsCount = (int)(ViewBag.PatientsCount ?? 0);
+    var feedCount = (int)(ViewBag.FeedCount ?? 0);
+    var prescriptionsCount = (int)(ViewBag.PrescriptionsCount ?? 0);
+    var workingPeriods = ViewBag.WorkingPeriods as IReadOnlyList<WorkingPeriod> ?? Array.Empty<WorkingPeriod>();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doctor-dashboard.css" asp-append-version="true" />
+}
+
+<div class="mr-portal mr-theme-dark" style="min-height: auto; background: transparent;">
+    <!-- Page Header -->
+    <div class="mr-page-header">
+        <div>
+            <h1 class="mr-title">@greeting, @doctorName</h1>
+            <p class="mr-subtitle">
+                @(doctorDto?.SpecializationName ?? "Doctor")
+                @if (!string.IsNullOrWhiteSpace(doctorDto?.City))
+                {
+                    <span>• @doctorDto.City</span>
+                }
+            </p>
+        </div>
+        <div class="mr-page-actions">
+            <span class="mr-chip d-inline-flex">
+                <i class="bi bi-calendar3"></i>
+                @DateTime.Today.ToString("ddd, MMM dd, yyyy", CultureInfo.InvariantCulture)
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">Patients</span>
+                    <span class="mr-stat-icon stat-teal"><i class="bi bi-people"></i></span>
+                </div>
+                <div class="mr-stat-value">@patientsCount</div>
+                <div class="mr-muted small mt-1">Linked to your practice</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">Recent Records &amp; Docs</span>
+                    <span class="mr-stat-icon stat-purple"><i class="bi bi-file-earmark-medical"></i></span>
+                </div>
+                <div class="mr-stat-value">@feedCount</div>
+                <div class="mr-muted small mt-1">Notes and uploaded files</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">Prescriptions</span>
+                    <span class="mr-stat-icon stat-green"><i class="bi bi-capsule"></i></span>
+                </div>
+                <div class="mr-stat-value">@prescriptionsCount</div>
+                <div class="mr-muted small mt-1">Total prescribed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Split: Patients & Working Hours + Patient Details -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5 d-flex flex-column gap-4">
+            <div class="mr-card">
+                <div class="mr-card-header">
+                    <h2 class="mr-card-title">Your Patients</h2>
+                    <span class="mr-badge badge-status-muted">@Model.Patients.Count</span>
+                </div>
+
+                @if (!Model.Patients.Any())
+                {
+                    <div class="mr-empty py-3">
+                        <i class="bi bi-people"></i>
+                        <div class="mr-muted">No patients linked yet.</div>
+                    </div>
+                }
+                else
+                {
+                    var selectedId = Model.SelectedHistory?.Patient.Id;
+                    <div class="d-flex flex-column gap-1">
+                        @foreach (var p in Model.Patients)
+                        {
+                            var isSelected = selectedId == p.Id;
+                            var pName = p.User?.FullName ?? $"Patient #{p.Id}";
+                            var initials = string.Concat(pName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+                            if (string.IsNullOrEmpty(initials)) initials = "P";
+
+                            <a asp-action="Index"
+                               asp-route-patientId="@p.Id"
+                               class="dd-patient-item @(isSelected ? "is-active" : "")">
+                                <span class="mr-person min-w-0">
+                                    <span class="mr-avatar mr-avatar-sm" style="background: var(--mr-accent);">@initials</span>
+                                    <span class="text-truncate">@pName</span>
+                                </span>
+                                <span class="small">@(isSelected ? "Selected" : "View")</span>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="mr-card">
+                <div class="mr-card-header">
+                    <h2 class="mr-card-title">Today's Working Hours</h2>
+                    <span class="mr-muted small">@DateTime.Today.ToString("dddd", CultureInfo.InvariantCulture)</span>
+                </div>
+
+                @if (!workingPeriods.Any())
+                {
+                    <p class="mr-muted mb-0 small">No working periods scheduled today (Day off).</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-2">
+                        @foreach (var period in workingPeriods)
+                        {
+                            var startText = DateTime.Today.Add(period.Start).ToString("hh:mm tt", CultureInfo.InvariantCulture);
+                            var endText = DateTime.Today.Add(period.End).ToString("hh:mm tt", CultureInfo.InvariantCulture);
+                            <div class="dd-shift-row">
+                                <span class="mr-muted small">Working Block</span>
+                                <strong class="small">@startText – @endText</strong>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="mr-card h-100">
+                <div class="mr-card-header">
+                    <h2 class="mr-card-title">Patient Details</h2>
+                    @if (Model.SelectedHistory != null)
+                    {
+                        <span class="mr-badge badge-status-ok">Active</span>
+                    }
+                </div>
+
+                @if (Model.SelectedHistory == null)
+                {
+                    <div class="mr-empty py-4">
+                        <i class="bi bi-person-lines-fill"></i>
+                        <div class="mr-muted">Select a patient to view their details.</div>
+                    </div>
+                }
+                else
+                {
+                    var patient = Model.SelectedHistory.Patient;
+                    var patientName = patient.User?.FullName ?? $"Patient #{patient.Id}";
+                    var initials = string.Concat(patientName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+                    if (string.IsNullOrEmpty(initials)) initials = "P";
+
+                    <div class="mr-person mb-4">
+                        <span class="mr-avatar mr-avatar-lg" style="background: var(--mr-accent);">@initials</span>
+                        <div class="min-w-0">
+                            <h3 class="h5 fw-bold mb-1">@patientName</h3>
+                            <div class="mr-muted small">
+                                @Model.SelectedHistory.Records.Count visits •
+                                @Model.SelectedHistory.Prescriptions.Count prescriptions •
+                                @Model.SelectedHistory.Documents.Count documents
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="dd-detail-box">
+                                <div class="mr-label">Medical History</div>
+                                <div class="small mr-prewrap">
+                                    @(string.IsNullOrWhiteSpace(patient.MedicalHistory) ? "None recorded" : patient.MedicalHistory)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="dd-detail-box">
+                                <div class="mr-label">Allergies</div>
+                                <div class="small mr-prewrap">
+                                    @(string.IsNullOrWhiteSpace(patient.Allergies) ? "None recorded" : patient.Allergies)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.SelectedHistory.Prescriptions.Any())
+                    {
+                        <div class="mr-label mb-2">Recent Prescriptions</div>
+                        <div class="d-flex flex-column">
+                            @foreach (var rx in Model.SelectedHistory.Prescriptions.Take(5))
+                            {
+                                <div class="mr-list-row justify-content-between">
+                                    <span class="fw-semibold small">Prescription #@rx.Id</span>
+                                    <span class="mr-muted small">@rx.CreatedAt.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Records & Documents -->
+    <div class="mr-card">
+        <div class="mr-card-header">
+            <h2 class="mr-card-title">Recent Records &amp; Documents</h2>
+            <span class="mr-badge badge-status-muted">@Model.Feed.Count</span>
+        </div>
+
+        @if (!Model.Feed.Any())
+        {
+            <div class="mr-empty py-3">
+                <i class="bi bi-folder2-open"></i>
+                <div class="mr-muted">No recent records or documents found.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mr-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Patient</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Feed.Take(10))
+                        {
+                            <tr>
+                                <td>
+                                    <span class="mr-record-link">
+                                        <span class="mr-file-icon"><i class="bi bi-file-earmark-text"></i></span>
+                                        <span class="text-truncate">@item.Title</span>
+                                    </span>
+                                </td>
+                                <td>@item.PatientName</td>
+                                <td><span class="mr-badge badge-type-notes">@item.TypeLabel</span></td>
+                                <td class="mr-muted">@item.Date.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

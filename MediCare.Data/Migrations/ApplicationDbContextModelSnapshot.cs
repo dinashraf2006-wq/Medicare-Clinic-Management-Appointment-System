@@ -100,7 +100,7 @@ namespace MediCare.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
@@ -109,7 +109,8 @@ namespace MediCare.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PatientNotes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -121,9 +122,12 @@ namespace MediCare.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DoctorId");
+                    b.HasIndex("PatientId", "AppointmentDate");
 
-                    b.HasIndex("PatientId");
+                    b.HasIndex("DoctorId", "AppointmentDate", "StartTime")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Appointments_Doctor_Slot_Active")
+                        .HasFilter("[Status] IN ('Pending', 'Confirmed')");
 
                     b.ToTable("Appointments");
                 });

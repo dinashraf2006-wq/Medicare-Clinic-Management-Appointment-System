@@ -1,0 +1,56 @@
+﻿/* Dashboard-specific helpers using the shared MediCare theme variables */
+.dd-kpi-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dd-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.dd-patient-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: background .15s, border-color .15s;
+}
+
+    .dd-patient-item:hover {
+        background: var(--mr-card-2);
+    }
+
+    .dd-patient-item.is-active {
+        background: var(--mr-accent-soft);
+        border-color: var(--mr-accent);
+        color: var(--mr-accent);
+        font-weight: 600;
+    }
+
+.dd-detail-box {
+    background: var(--mr-card-2);
+    border: 1px solid var(--mr-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    height: 100%;
+}
+
+.dd-shift-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--mr-card-2);
+    border: 1px solid var(--mr-border);
+}

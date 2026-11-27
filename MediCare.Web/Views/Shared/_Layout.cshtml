@@ -1,7 +1,17 @@
 ﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+
     var isDoctorLanding = currentController == "Home" && currentAction == "ForDoctors";
+
+    var isAuthPage =
+        (string.Equals(currentController, "Account", StringComparison.OrdinalIgnoreCase) &&
+         (string.Equals(currentAction, "Login", StringComparison.OrdinalIgnoreCase) ||
+          string.Equals(currentAction, "Register", StringComparison.OrdinalIgnoreCase)))
+        || (currentPage != null &&
+            (currentPage.EndsWith("/Login", StringComparison.OrdinalIgnoreCase) ||
+             currentPage.EndsWith("/Register", StringComparison.OrdinalIgnoreCase)));
 }
 
 <!DOCTYPE html>
@@ -27,104 +37,107 @@
     <link rel="stylesheet" href="~/MediCare.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @if (!User.Identity.IsAuthenticated)
+    @if (!isAuthPage)
         {
-            <header class="shefa-navbar sticky-top d-flex align-items-center">
-                <nav class="navbar navbar-expand-lg navbar-light container py-0 ">
-                    <!-- Left: Shefa Logo -->
-                    <a class="navbar-brand shefa-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
-                        <span class="shefa-brand-icon">
-                            <i class="bi bi-heart"></i>
-                        </span>
-                        <span>Shefa<span class="shefa-brand-dot">.</span></span>
-                    </a>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <header class="shefa-navbar sticky-top d-flex align-items-center">
+                    <nav class="navbar navbar-expand-lg navbar-light container py-0 ">
+                        <!-- Left: Shefa Logo -->
+                        <a class="navbar-brand shefa-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
+                            <span class="shefa-brand-icon">
+                                <i class="bi bi-heart"></i>
+                            </span>
+                            <span>Shefa<span class="shefa-brand-dot">.</span></span>
+                        </a>
 
-                    <!-- Mobile Hamburger Button -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#shefaNavbar"
-                    aria-controls="shefaNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                        <!-- Mobile Hamburger Button -->
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#shefaNavbar"
+                        aria-controls="shefaNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
 
-                    <div class="collapse navbar-collapse justify-content-between" id="shefaNavbar">
-                        <!-- Center: Pill Navigation Bar -->
-                        @if (isDoctorLanding)
-                        {
-                            <ul class="navbar-nav mx-auto shefa-nav-pill-group my-3 my-lg-0" id="shefaNavPills">
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Home" asp-action="Index">
-                                        <i class="bi bi-arrow-left"></i>
-                                        <span>Patient Home</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" asp-controller="Home" asp-action="ForDoctors">
-                                        <span>Join as a Doctor</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        }
-                        else
-                        {
-                            <ul class="navbar-nav mx-auto shefa-nav-pill-group my-3 my-lg-0" id="shefaNavPills">
-                                <li class="nav-item">
-                                    <a class="nav-link @(currentController == "Home" ? "active" : "")"
-                                    data-section="home"
-                                    asp-controller="Home" asp-action="Index">Home</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link @(currentController == "Doctors" ? "active" : "")"
-                                    data-section="top-doctors"
-                                    asp-controller="Doctors" asp-action="Index">Find Doctors</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link @(currentController == "Specialties" ? "active" : "")"
-                                    data-section="specialties"
-                                    asp-controller="Specialties" asp-action="Index">Specialties</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link"
-                                    data-section="how-it-works"
-                                    asp-controller="Home" asp-action="Index" asp-fragment="how-it-works">How It Works</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link"
-                                    data-section="about"
-                                    asp-controller="Home" asp-action="Index" asp-fragment="about">About</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link"
-                                    data-section="join-as-doctor"
-                                    asp-controller="Home" asp-action="Index" asp-fragment="join-as-doctor">Join as a Doctor</a>
-                                </li>
-                            </ul>
-                        }
-                        <!-- Right: Auth Buttons -->
-                        <div class="d-flex align-items-center gap-3 pb-3 pb-lg-0 ms-auto">
-                            <a asp-controller="Account" asp-action="Login" class="shefa-btn-login">Log In</a>
-                            <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary">Sign Up</a>
+                        <div class="collapse navbar-collapse justify-content-between" id="shefaNavbar">
+                            <!-- Center: Pill Navigation Bar -->
+                            @if (isDoctorLanding)
+                            {
+                                <ul class="navbar-nav mx-auto shefa-nav-pill-group my-3 my-lg-0" id="shefaNavPills">
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                            <i class="bi bi-arrow-left"></i>
+                                            <span>Patient Home</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link active" asp-controller="Home" asp-action="ForDoctors">
+                                            <span>Join as a Doctor</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            }
+                            else
+                            {
+                                <ul class="navbar-nav mx-auto shefa-nav-pill-group my-3 my-lg-0" id="shefaNavPills">
+                                    <li class="nav-item">
+                                        <a class="nav-link @(currentController == "Home" ? "active" : "")"
+                                        data-section="home"
+                                        asp-controller="Home" asp-action="Index">Home</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link @(currentController == "Doctors" ? "active" : "")"
+                                        data-section="top-doctors"
+                                        asp-controller="Doctors" asp-action="Index">Find Doctors</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link @(currentController == "Specialties" ? "active" : "")"
+                                        data-section="specialties"
+                                        asp-controller="Specialties" asp-action="Index">Specialties</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link"
+                                        data-section="how-it-works"
+                                        asp-controller="Home" asp-action="Index" asp-fragment="how-it-works">How It Works</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link"
+                                        data-section="about"
+                                        asp-controller="Home" asp-action="Index" asp-fragment="about">About</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link"
+                                        data-section="join-as-doctor"
+                                        asp-controller="Home" asp-action="Index" asp-fragment="join-as-doctor">Join as a Doctor</a>
+                                    </li>
+                                </ul>
+                            }
+                            <!-- Right: Auth Buttons -->
+                            <div class="d-flex align-items-center gap-3 pb-3 pb-lg-0 ms-auto">
+                                <a asp-controller="Account" asp-action="Login" class="shefa-btn-login">Log In</a>
+                                <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary">Sign Up</a>
+                            </div>
                         </div>
-                    </div>
-                </nav>
-            </header>
-        }
-        else
-        {
-            <header class="shefa-navbar sticky-top d-flex align-items-center">
-                <nav class="navbar navbar-expand-lg navbar-light container py-0">
-                    <a class="navbar-brand shefa-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
-                        <span class="shefa-brand-icon">
-                            <i class="bi bi-heart"></i>
-                        </span>
-                        <span>Shefa<span class="shefa-brand-dot">.</span></span>
-                    </a>
-                    <div class="ms-auto">
-                        <span class="text-muted me-3">Hello, @User.Identity?.Name</span>
-                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-                        </form>
-                    </div>
-                </nav>
-            </header>
+                    </nav>
+                </header>
+            }
+            else
+            {
+                <header class="shefa-navbar sticky-top d-flex align-items-center">
+                    <nav class="navbar navbar-expand-lg navbar-light container py-0">
+                        <a class="navbar-brand shefa-brand d-flex align-items-center gap-2 m-0" asp-controller="Home" asp-action="Index">
+                            <span class="shefa-brand-icon">
+                                <i class="bi bi-heart"></i>
+                            </span>
+                            <span>Shefa<span class="shefa-brand-dot">.</span></span>
+                        </a>
+                        <div class="ms-auto">
+                            <span class="text-muted me-3">Hello, @User.Identity?.Name</span>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                            </form>
+                        </div>
+                    </nav>
+                </header>
+            }
         }
     <!-- Main Page Content -->
     <main role="main">
@@ -132,63 +145,35 @@
     </main>
 
     <!-- Bottom Footer -->
-    <footer class="shefa-footer pt-5 pb-4 mt-5">
-        <div class="container">
-            <div class="row g-4 mb-4">
-                <div class="col-lg-4">
-                    <a class="navbar-brand text-white fw-bold fs-4 d-inline-flex align-items-center gap-2 mb-3" asp-controller="Home" asp-action="Index">
-                        <span class="shefa-brand-icon" style="width: 32px; height: 32px; font-size: 0.95rem;">
-                            <i class="bi bi-heart"></i>
-                        </span>
-                        <span>Shefa<span class="shefa-brand-dot">.</span></span>
-                    </a>
-                    <p class="text-white-50 small mb-0">World-class doctors. Modern care.<br>A healthier Egypt.</p>
+        @if (!isAuthPage)
+        {
+            <footer class="shefa-footer pt-5 pb-4 mt-5">
+                <div class="container">
+                    <div class="row g-4 mb-4">
+                        <div class="col-lg-6">
+                            <a class="navbar-brand text-white fw-bold fs-4 d-inline-flex align-items-center gap-2 mb-3" asp-controller="Home" asp-action="Index">
+                                <span class="shefa-brand-icon" style="width: 32px; height: 32px; font-size: 0.95rem;">
+                                    <i class="bi bi-heart"></i>
+                                </span>
+                                <span>Shefa<span class="shefa-brand-dot">.</span></span>
+                            </a>
+                            <p class="text-white-50 small mb-0">World-class doctors. Modern care.<br>A healthier Egypt.</p>
+                        </div>
+                        <div class="col-lg-6">
+                            <h6 class="fw-bold text-white mb-3">Contact</h6>
+                            <ul class="list-unstyled small text-white-50 d-flex flex-column gap-2">
+                                <li><i class="bi bi-telephone me-2"></i>16xxx</li>
+                                <li><i class="bi bi-envelope me-2"></i>care@shefa.eg</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr class="border-white border-opacity-10">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between text-white-50 small pt-2">
+                        <div>&copy; 2026 Shefa. All rights reserved.</div>
+                    </div>
                 </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <h6 class="fw-bold text-white mb-3">Patients</h6>
-                    <ul class="list-unstyled small d-flex flex-column gap-2">
-                        <li><a asp-controller="Doctors" asp-action="Index" class="text-white-50 text-decoration-none">Find Doctors</a></li>
-                        <li><a asp-controller="Specialties" asp-action="Index" class="text-white-50 text-decoration-none">Specialties</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Book Appointment</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Patient Portal</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <h6 class="fw-bold text-white mb-3">Doctors</h6>
-                    <ul class="list-unstyled small d-flex flex-column gap-2">
-                        <li><a href="#" class="text-white-50 text-decoration-none">Join Shefa</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Doctor Dashboard</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Resources</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <h6 class="fw-bold text-white mb-3">Company</h6>
-                    <ul class="list-unstyled small d-flex flex-column gap-2">
-                        <li><a href="#" class="text-white-50 text-decoration-none">About</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Careers</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Contact</a></li>
-                        <li><a href="#" class="text-white-50 text-decoration-none">Help Center</a></li>
-                    </ul>
-                </div>
-                <div class="col-6 col-md-3 col-lg-2">
-                    <h6 class="fw-bold text-white mb-3">Contact</h6>
-                    <ul class="list-unstyled small text-white-50 d-flex flex-column gap-2">
-                        <li><i class="bi bi-telephone me-2"></i>16xxx</li>
-                        <li><i class="bi bi-envelope me-2"></i>care@shefa.eg</li>
-                    </ul>
-                </div>
-            </div>
-            <hr class="border-white border-opacity-10">
-            <div class="d-flex flex-column flex-sm-row justify-content-between text-white-50 small pt-2">
-                <div>&copy; 2026 Shefa. All rights reserved.</div>
-                <div class="d-flex gap-3 mt-2 mt-sm-0">
-                    <a href="#" class="text-white-50 text-decoration-none">Privacy</a>
-                    <a href="#" class="text-white-50 text-decoration-none">Terms</a>
-                    <a href="#" class="text-white-50 text-decoration-none">Cookies</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+            </footer>
+        }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
