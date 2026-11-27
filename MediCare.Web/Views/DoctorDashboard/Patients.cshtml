@@ -1,0 +1,247 @@
+﻿@using System.Globalization
+@using MediCare.Services.MedicalRecords
+@using MediCare.Web.Models
+@model IReadOnlyList<DoctorPatientRowViewModel>
+
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Patients";
+    ViewData["ActiveNav"] = "patients";
+
+    var searchTerm = ViewBag.SearchTerm as string ?? string.Empty;
+    var statusFilter = ViewBag.StatusFilter as string ?? "All";
+    var selectedHistory = ViewBag.SelectedPatientHistory as PatientHistory;
+
+    string FormatVisitDate(DateTime? dt)
+    {
+        if (!dt.HasValue) return "—";
+        var d = dt.Value.Date;
+        if (d == DateTime.Today) return "Today";
+        if (d == DateTime.Today.AddDays(-1)) return "Yesterday";
+        return d.ToString("MMM dd, yyyy", CultureInfo.InvariantCulture);
+    }
+
+    string GetInitials(string name)
+    {
+        var initials = string.Concat(
+            name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Take(2)
+                .Select(w => char.ToUpperInvariant(w[0])));
+        return string.IsNullOrEmpty(initials) ? "PT" : initials;
+    }
+
+    (string BadgeClass, string DotColor) GetStatusStyle(string status) => status switch
+    {
+        "Critical" => ("badge-status-danger", "#ef4444"),
+        "Monitoring" => ("badge-status-warn", "#f59e0b"),
+        _ => ("badge-status-ok", "#10b981")
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doctor-dashboard.css" asp-append-version="true" />
+    <style>
+        .dp-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .dp-search-box {
+            position: relative;
+            min-width: 240px;
+        }
+
+            .dp-search-box i {
+                position: absolute;
+                left: 0.85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--mr-muted, #94a3b8);
+                pointer-events: none;
+            }
+
+        .dp-search-input {
+            padding-left: 2.25rem;
+            border-radius: 999px;
+        }
+
+        .dp-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.4rem;
+        }
+
+        .dp-row-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+            .dp-row-link:hover {
+                text-decoration: underline;
+            }
+    </style>
+}
+
+<div class="mr-portal mr-theme-dark" style="min-height: auto; background: transparent;">
+    <!-- Header + Search + Status Filter -->
+    <div class="mr-page-header align-items-start align-items-md-center flex-column flex-md-row gap-3">
+        <div>
+            <h1 class="mr-title">Patients</h1>
+            <p class="mr-subtitle mb-0">
+                @Model.Count @(Model.Count == 1 ? "active patient" : "active patients")
+            </p>
+        </div>
+
+        <form method="get" asp-action="Patients" class="dp-toolbar">
+            <div class="dp-search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       name="search"
+                       value="@searchTerm"
+                       class="form-control dp-search-input"
+                       placeholder="Search patients..." />
+            </div>
+
+            <div class="dropdown">
+                <button class="btn mr-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-funnel"></i>
+                    @(statusFilter == "All" ? "Filters" : statusFilter)
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    @foreach (var opt in new[] { "All", "Stable", "Monitoring", "Critical" })
+                    {
+                        <li>
+                            <button type="submit"
+                                    name="status"
+                                    value="@opt"
+                                    class="dropdown-item @(statusFilter.Equals(opt, StringComparison.OrdinalIgnoreCase) ? "active" : "")">
+                                @opt
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(searchTerm) || statusFilter != "All")
+            {
+                <a asp-action="Patients" class="btn btn-sm btn-outline-secondary rounded-pill">
+                    Reset
+                </a>
+            }
+        </form>
+    </div>
+
+    <!-- Main Patients Table Card -->
+    <div class="mr-card mb-4">
+        @if (!Model.Any())
+        {
+            <div class="mr-empty py-5">
+                <i class="bi bi-people"></i>
+                <div class="mr-muted">No matching patients found.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mr-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>PATIENT</th>
+                            <th>CONDITION</th>
+                            <th>LAST VISIT</th>
+                            <th>NEXT VISIT</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model)
+                        {
+                            var initials = GetInitials(row.FullName);
+                            var (badgeClass, dotColor) = GetStatusStyle(row.Status);
+                            var isSelected = selectedHistory?.Patient.Id == row.PatientId;
+
+                            <tr class="@(isSelected ? "table-active" : "")">
+                                <td>
+                                    <div class="mr-person">
+                                        <span class="mr-avatar mr-avatar-sm" style="background: var(--mr-accent);">
+                                            @initials
+                                        </span>
+                                        <div class="min-w-0">
+                                            <a asp-action="Patients"
+                                               asp-route-search="@searchTerm"
+                                               asp-route-status="@statusFilter"
+                                               asp-route-selectedPatientId="@row.PatientId"
+                                               class="fw-semibold dp-row-link d-block text-truncate">
+                                                @row.FullName
+                                            </a>
+                                            <div class="mr-muted small text-truncate">
+                                                @row.PatientCode
+                                                @if (!string.IsNullOrWhiteSpace(row.Allergies))
+                                                {
+                                                    <span>• Allergy: @row.Allergies</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-truncate d-inline-block" style="max-width: 240px;">
+                                        @row.Condition
+                                    </span>
+                                </td>
+                                <td class="mr-muted">@FormatVisitDate(row.LastVisitDate)</td>
+                                <td class="mr-muted">@FormatVisitDate(row.NextVisitDate)</td>
+                                <td>
+                                    <span class="mr-badge @badgeClass">
+                                        <span style="background: @dotColor;"></span>
+                                        @row.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Optional Selected Patient Summary Drawer/Panel Below Table -->
+    @if (selectedHistory != null)
+    {
+        var pName = selectedHistory.Patient.User?.FullName ?? $"Patient #{selectedHistory.Patient.Id}";
+        <div class="mr-card">
+            <div class="mr-card-header">
+                <h2 class="mr-card-title mb-0">@pName — Clinical Summary</h2>
+                <a asp-action="Patients"
+                   asp-route-search="@searchTerm"
+                   asp-route-status="@statusFilter"
+                   class="btn btn-sm btn-outline-secondary">
+                    Close
+                </a>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="dd-detail-box">
+                        <div class="mr-label">Medical History</div>
+                        <div class="small mr-prewrap">
+                            @(string.IsNullOrWhiteSpace(selectedHistory.Patient.MedicalHistory) ? "None recorded" : selectedHistory.Patient.MedicalHistory)
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="dd-detail-box">
+                        <div class="mr-label">Allergies</div>
+                        <div class="small mr-prewrap">
+                            @(string.IsNullOrWhiteSpace(selectedHistory.Patient.Allergies) ? "None recorded" : selectedHistory.Patient.Allergies)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

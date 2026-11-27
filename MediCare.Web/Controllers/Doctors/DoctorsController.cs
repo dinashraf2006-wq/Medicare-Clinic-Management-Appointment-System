@@ -1,15 +1,19 @@
-﻿using MediCare.Services.Doctors;
+﻿using MediCare.Data.Repositories;
+using MediCare.Services.Doctors;
 using MediCare.Web.Models.Doctors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MediCare.Web.Controllers.Doctors
 {
     public class DoctorsController : Controller
     {
         private readonly IDoctorService _doctorService;
-        public DoctorsController(IDoctorService doctorService)
+        private readonly IUnitOfWork _unitOfWork;
+        public DoctorsController(IDoctorService doctorService, IUnitOfWork unitOfWork)
         {
             _doctorService = doctorService;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -18,6 +22,7 @@ namespace MediCare.Web.Controllers.Doctors
         {
             var doctors = await _doctorService.SearchDoctorsAsync(searchTerm, specialty, minFee, maxFee, city);
             var cities = await _doctorService.GetAvailableCitiesAsync();
+            var specializations = await _unitOfWork.Specialization.GetAllWithDoctorsAsync();
 
             var viewModel = new DoctorSearchViewModel
             {
@@ -27,6 +32,14 @@ namespace MediCare.Web.Controllers.Doctors
                 MinFee = minFee,
                 MaxFee = maxFee,
                 AvailableCities = cities.ToList(),
+                Specialties = specializations
+                    .OrderBy(s => s.Name)
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Name,
+                        Text = s.Name
+                    })
+                    .ToList(),
                 Doctors = doctors.ToList()
             };
 

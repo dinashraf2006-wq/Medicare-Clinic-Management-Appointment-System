@@ -1,4 +1,5 @@
 ﻿using MediCare.Services.Doctors;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace MediCare.Web.Models.Doctors
 {
@@ -16,5 +17,6 @@ namespace MediCare.Web.Models.Doctors
 
         // Search results
         public List<DoctorDto> Doctors { get; set; } = new();
+        public List<SelectListItem> Specialties { get; set; } = new();
     }
 }

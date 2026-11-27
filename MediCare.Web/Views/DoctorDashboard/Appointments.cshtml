@@ -1,0 +1,343 @@
+﻿@using System.Globalization
+@using MediCare.Web.Models
+@model DoctorAppointmentsViewModel
+
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "Appointments";
+    ViewData["ActiveNav"] = "appointments";
+
+    string GetInitials(string name)
+    {
+        var initials = string.Concat(
+            name.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Take(2)
+                .Select(w => char.ToUpperInvariant(w[0])));
+        return string.IsNullOrEmpty(initials) ? "PT" : initials;
+    }
+
+    string FormatDateTime(DateTime date, TimeSpan time)
+    {
+        var dt = date.Date + time;
+        return dt.ToString("ddd, MMM dd · h:mm tt", CultureInfo.InvariantCulture);
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doctor-dashboard.css" asp-append-version="true" />
+    <style>
+        .da-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .da-search-box {
+            position: relative;
+            min-width: 230px;
+        }
+
+            .da-search-box i {
+                position: absolute;
+                left: 0.85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--mr-muted, #94a3b8);
+                pointer-events: none;
+            }
+
+        .da-search-input {
+            padding-left: 2.25rem;
+            border-radius: 999px;
+        }
+
+        .da-tabs {
+            display: inline-flex;
+            gap: 0.25rem;
+            padding: 0.2rem;
+            border-radius: 0.65rem;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .da-tab-btn {
+            border: 0;
+            background: transparent;
+            color: var(--mr-muted, #94a3b8);
+            padding: 0.35rem 0.8rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+            .da-tab-btn.is-active {
+                background: var(--mr-accent, #0ea5e9);
+                color: #fff;
+            }
+
+        .da-type-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .da-type-clinic {
+            background: rgba(20, 184, 166, 0.14);
+            color: #2dd4bf;
+        }
+
+        .da-type-video {
+            background: rgba(139, 92, 246, 0.16);
+            color: #c4b5fd;
+        }
+    </style>
+}
+
+<div class="mr-portal mr-theme-dark" style="min-height: auto; background: transparent;">
+    <!-- Header + Search + New Appointment -->
+    <div class="mr-page-header align-items-start align-items-md-center flex-column flex-md-row gap-3">
+        <div>
+            <h1 class="mr-title">Appointments</h1>
+            <p class="mr-subtitle mb-0">Requests and bookings across all your clinics.</p>
+        </div>
+
+        <div class="da-toolbar">
+            <form method="get" asp-action="Appointments" class="da-search-box m-0">
+                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       name="search"
+                       value="@Model.Search"
+                       class="form-control da-search-input"
+                       placeholder="Search patients..." />
+            </form>
+
+            <button type="button"
+                    class="btn btn-info text-white fw-semibold rounded-pill px-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#newAppointmentModal">
+                <i class="bi bi-plus-lg me-1"></i> New appointment
+            </button>
+        </div>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">Today</span>
+                    <span class="mr-stat-icon stat-teal"><i class="bi bi-calendar-check"></i></span>
+                </div>
+                <div class="mr-stat-value">@Model.TodayCount</div>
+                <div class="mr-muted small mt-1">@Model.TodayCompletedCount completed</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">Pending requests</span>
+                    <span class="mr-stat-icon stat-purple"><i class="bi bi-clock-history"></i></span>
+                </div>
+                <div class="mr-stat-value">@Model.PendingCount</div>
+                <div class="mr-muted small mt-1">Respond within 24h</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="mr-card dd-kpi-card">
+                <div class="dd-kpi-top">
+                    <span class="mr-label mb-0">No-shows</span>
+                    <span class="mr-stat-icon stat-green"><i class="bi bi-x-circle"></i></span>
+                </div>
+                <div class="mr-stat-value">@Model.NoShowsMonthCount</div>
+                <div class="mr-muted small mt-1">This month</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments Table Card with Tabs -->
+    <div class="mr-card">
+        <div class="mr-card-header flex-wrap gap-2">
+            <h2 class="mr-card-title mb-0">All appointments</h2>
+
+            <div class="da-tabs">
+                @foreach (var t in new[] { "Requests", "Upcoming", "Completed", "Cancelled" })
+                {
+                    <a asp-action="Appointments"
+                       asp-route-tab="@t"
+                       asp-route-search="@Model.Search"
+                       class="da-tab-btn @(Model.ActiveTab.Equals(t, StringComparison.OrdinalIgnoreCase) ? "is-active" : "")">
+                        @t
+                    </a>
+                }
+            </div>
+        </div>
+
+        @if (!Model.Appointments.Any())
+        {
+            <div class="mr-empty py-5">
+                <i class="bi bi-calendar2-x"></i>
+                <div class="mr-muted">No appointments in "@Model.ActiveTab".</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table mr-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>PATIENT</th>
+                            <th>DATE &amp; TIME</th>
+                            <th>NOTES</th>
+                            <th class="text-end">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Appointments)
+                        {
+                            var initials = GetInitials(item.PatientName);
+
+                            <tr>
+                                <td>
+                                    <div class="mr-person">
+                                        <span class="mr-avatar mr-avatar-sm" style="background: var(--mr-accent);">
+                                            @initials
+                                        </span>
+                                        <div class="min-w-0">
+                                            <div class="fw-semibold text-truncate">@item.PatientName</div>
+                                            <div class="mr-muted small">@item.PatientMeta</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="mr-muted">@FormatDateTime(item.AppointmentDate, item.StartTime)</td>
+                                <td>
+                                    <span class="text-truncate d-inline-block" style="max-width: 240px;">
+                                        @item.Reason
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    @if (item.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div class="d-inline-flex gap-2">
+                                            <form method="post" asp-action="UpdateAppointmentStatus" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="Confirmed" />
+                                                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                                                <input type="hidden" name="search" value="@Model.Search" />
+                                                <button type="submit" class="btn btn-sm btn-info text-white fw-semibold rounded-pill px-3">
+                                                    Accept
+                                                </button>
+                                            </form>
+                                            <form method="post" asp-action="UpdateAppointmentStatus" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="Cancelled" />
+                                                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                                                <input type="hidden" name="search" value="@Model.Search" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                    Decline
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else if (item.Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div class="d-inline-flex gap-2">
+                                            <form method="post" asp-action="UpdateAppointmentStatus" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="Completed" />
+                                                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                                                <input type="hidden" name="search" value="@Model.Search" />
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                                    Complete
+                                                </button>
+                                            </form>
+                                            <form method="post" asp-action="UpdateAppointmentStatus" class="m-0">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="status" value="Cancelled" />
+                                                <input type="hidden" name="tab" value="@Model.ActiveTab" />
+                                                <input type="hidden" name="search" value="@Model.Search" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="mr-badge badge-status-muted">@item.Status</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- New Appointment Modal -->
+<div class="modal fade" id="newAppointmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <form method="post" asp-action="CreateAppointment">
+                @Html.AntiForgeryToken()
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">New Appointment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body d-flex flex-column gap-3">
+                    <div>
+                        <label class="form-label">Patient</label>
+                        <select name="patientId" class="form-select bg-dark text-light border-secondary" required>
+                            <option value="">Select a patient...</option>
+                            @foreach (var p in Model.DoctorPatients)
+                            {
+                                <option value="@p.Id">@p.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label">Date</label>
+                            <input type="date"
+                                   name="appointmentDate"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                   required />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Start Time</label>
+                            <input type="time"
+                                   name="startTime"
+                                   class="form-control bg-dark text-light border-secondary"
+                                   value="10:00"
+                                   required />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Reason / Notes</label>
+                        <input type="text"
+                               name="patientNotes"
+                               class="form-control bg-dark text-light border-secondary"
+                               placeholder="e.g. Follow-up, Chest pain..." />
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info text-white fw-semibold rounded-pill px-4">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -73,9 +73,11 @@
 
                 <form asp-controller="Doctors" asp-action="Index" method="get" id="sidebarFilterForm">
                     <!-- Specialty Filter -->
-                    <div class="mb-4">
-                        <label class="fw-bold small mb-2" style="color: var(--shefa-ink);">Specialty</label>
-                        <input type="text" name="specialty" value="@Model.Specialty" class="form-control form-control-sm rounded-pill px-3 py-2" style="border-color: var(--shefa-line);" placeholder="e.g. Cardiology" />
+                    <div class="mb-3">
+                        <label asp-for="Specialty" class="form-label fw-semibold">Specialty</label>
+                        <select asp-for="Specialty" asp-items="Model.Specialties" class="form-select">
+                            <option value="">All Specialties</option>
+                        </select>
                     </div>
 
                     <div class="mb-4">
