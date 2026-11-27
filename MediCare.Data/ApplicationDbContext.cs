@@ -18,6 +18,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Doctor> Doctors => Set<Doctor>();
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<DoctorWorkingHours> DoctorWorkingHours => Set<DoctorWorkingHours>();
+    public DbSet<DoctorVacationDay> DoctorVacationDays => Set<DoctorVacationDay>();
 
     // Member 5 - Medical Records & Prescriptions
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
@@ -29,5 +31,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        builder.Entity<DoctorWorkingHours>().HasKey(hours => new { hours.DoctorId, hours.Day });
+        builder.Entity<DoctorWorkingHours>().HasOne<Doctor>().WithMany().HasForeignKey(hours => hours.DoctorId);
+        builder.Entity<DoctorVacationDay>().HasKey(day => new { day.DoctorId, day.Date });
+        builder.Entity<DoctorVacationDay>().HasOne<Doctor>().WithMany().HasForeignKey(day => day.DoctorId);
+
+        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            builder.Entity<Appointment>().Property(appointment => appointment.StartTime).HasConversion<long>();
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace MediCare.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -100,7 +100,7 @@ namespace MediCare.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AppointmentDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
@@ -109,7 +109,8 @@ namespace MediCare.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("PatientNotes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
@@ -121,9 +122,17 @@ namespace MediCare.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DoctorId");
+                    b.HasIndex("PatientId", "AppointmentDate");
 
-                    b.HasIndex("PatientId");
+                    b.HasIndex("DoctorId", "AppointmentDate", "StartTime")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Appointments_Doctor_Slot_Active")
+                        .HasFilter("[Status] IN ('Pending', 'Confirmed')");
+
+                    b.HasIndex("PatientId", "AppointmentDate", "StartTime")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Appointments_Patient_Slot_Active")
+                        .HasFilter("[Status] IN ('Pending', 'Confirmed')");
 
                     b.ToTable("Appointments");
                 });
@@ -148,6 +157,9 @@ namespace MediCare.Data.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<bool>("HasCustomSchedule")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ProfileImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -166,6 +178,38 @@ namespace MediCare.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Doctors");
+                });
+
+            modelBuilder.Entity("MediCare.Data.Entities.DoctorVacationDay", b =>
+                {
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.HasKey("DoctorId", "Date");
+
+                    b.ToTable("DoctorVacationDays");
+                });
+
+            modelBuilder.Entity("MediCare.Data.Entities.DoctorWorkingHours", b =>
+                {
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("End")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("Start")
+                        .HasColumnType("time");
+
+                    b.HasKey("DoctorId", "Day");
+
+                    b.ToTable("DoctorWorkingHours");
                 });
 
             modelBuilder.Entity("MediCare.Data.Entities.MedicalDocument", b =>
@@ -588,6 +632,24 @@ namespace MediCare.Data.Migrations
                     b.Navigation("Specialization");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MediCare.Data.Entities.DoctorVacationDay", b =>
+                {
+                    b.HasOne("MediCare.Data.Entities.Doctor", null)
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MediCare.Data.Entities.DoctorWorkingHours", b =>
+                {
+                    b.HasOne("MediCare.Data.Entities.Doctor", null)
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MediCare.Data.Entities.MedicalDocument", b =>

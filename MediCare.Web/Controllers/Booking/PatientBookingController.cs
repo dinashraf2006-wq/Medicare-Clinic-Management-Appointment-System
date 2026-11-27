@@ -15,12 +15,14 @@ public class PatientBookingController : Controller
     private readonly IBookingService _booking;
     private readonly IProfileLookupService _profiles;
     private readonly BookingOptions _options;
+    private readonly bool _isDemo;
 
-    public PatientBookingController(IBookingService booking, IProfileLookupService profiles, BookingOptions options)
+    public PatientBookingController(IBookingService booking, IProfileLookupService profiles, BookingOptions options, IWebHostEnvironment environment)
     {
         _booking = booking;
         _profiles = profiles;
         _options = options;
+        _isDemo = environment.IsEnvironment("Demo");
     }
 
     private Task<int?> CurrentPatientIdAsync() =>
@@ -62,8 +64,9 @@ public class PatientBookingController : Controller
     [HttpGet("{doctorId:int}/Slots")]
     public async Task<IActionResult> Slots(int doctorId, DateTime start, DateTime end)
     {
-        if (end <= start || (end - start).TotalDays > 42)
+        if (!ModelState.IsValid || end <= start || (end - start).TotalDays > 42)
             return BadRequest();
+        if (await _booking.GetDoctorAsync(doctorId) is null) return NotFound();
 
         var slots = await _booking.GetSlotsAsync(doctorId, start, end);
         var events = slots.Select(s => new CalendarSlotEvent(
@@ -87,6 +90,7 @@ public class PatientBookingController : Controller
         var doctor = await _booking.GetDoctorAsync(doctorId);
         if (doctor is null) return NotFound();
 
+        if (!ModelState.IsValid || start == default) return BadRequest();
         var check = await _booking.ValidateAsync(patientId.Value, doctorId, start);
         if (!check.Succeeded)
         {
@@ -113,9 +117,12 @@ public class PatientBookingController : Controller
         var doctor = await _booking.GetDoctorAsync(doctorId);
         if (doctor is null) return NotFound();
 
+        if (model.Start == default || model.Start > DateTime.MaxValue - _options.SlotLength)
+            return BadRequest();
         model.Doctor = doctor;
         model.End = model.Start + _options.SlotLength;
         ModelState.Remove(nameof(CheckoutViewModel.Doctor));
+        if (_isDemo) ModelState.Remove(nameof(CheckoutViewModel.PatientNotes));
         if (!ModelState.IsValid)
             return View("~/Views/PatientBooking/Checkout.cshtml", model);
 
@@ -123,7 +130,7 @@ public class PatientBookingController : Controller
         {
             DoctorId = doctorId,
             Start = model.Start,
-            PatientNotes = model.PatientNotes
+            PatientNotes = _isDemo ? null : model.PatientNotes
         });
 
         if (!result.Succeeded)

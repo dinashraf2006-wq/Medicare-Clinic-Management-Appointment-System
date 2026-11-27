@@ -15,11 +15,15 @@ public class PatientAppointmentsController : Controller
 {
     private readonly IBookingService _booking;
     private readonly IProfileLookupService _profiles;
+    private readonly BookingOptions _options;
+    private readonly TimeProvider _clock;
 
-    public PatientAppointmentsController(IBookingService booking, IProfileLookupService profiles)
+    public PatientAppointmentsController(IBookingService booking, IProfileLookupService profiles, BookingOptions options, TimeProvider clock)
     {
         _booking = booking;
         _profiles = profiles;
+        _options = options;
+        _clock = clock;
     }
 
     private Task<int?> CurrentPatientIdAsync() =>
@@ -35,7 +39,7 @@ public class PatientAppointmentsController : Controller
         if (patientId is null) return MissingProfile();
 
         var all = await _booking.GetPatientAppointmentsAsync(patientId.Value);
-        var now = DateTime.Now;
+        var now = _options.ClinicNow(_clock);
         bool IsUpcoming(PatientAppointmentDto a) => a.End > now && AppointmentStatus.IsActive(a.Status);
 
         return View("~/Views/PatientAppointments/Index.cshtml", new PatientAppointmentsViewModel

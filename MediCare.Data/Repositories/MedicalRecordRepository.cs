@@ -57,18 +57,20 @@ public class MedicalRecordRepository : GenericRepository<MedicalRecord>, IMedica
                           .ToListAsync();
     }
 
-    public async Task<bool> DoctorHasPatientAsync(int doctorId, int patientId) =>
-        await Context.Appointments.AnyAsync(a => a.DoctorId == doctorId && a.PatientId == patientId)
-        || await Set.AnyAsync(r => r.DoctorId == doctorId && r.PatientId == patientId)
-        || await Context.Prescriptions.AnyAsync(p => p.DoctorId == doctorId && p.PatientId == patientId)
-        || await Context.MedicalDocuments.AnyAsync(d => d.DoctorId == doctorId && d.PatientId == patientId);
+    public Task<bool> DoctorHasPatientAsync(int doctorId, int patientId) =>
+        CarePatientIds(Context, doctorId).AnyAsync(id => id == patientId);
+
+    internal static IQueryable<int> CarePatientIds(ApplicationDbContext context, int doctorId) =>
+        context.Appointments.Where(a => a.DoctorId == doctorId &&
+            (a.Status == AppointmentStatus.Confirmed || a.Status == AppointmentStatus.Completed))
+            .Select(a => a.PatientId)
+            .Union(context.MedicalRecords.Where(r => r.DoctorId == doctorId).Select(r => r.PatientId))
+            .Union(context.Prescriptions.Where(p => p.DoctorId == doctorId).Select(p => p.PatientId))
+            .Union(context.MedicalDocuments.Where(d => d.DoctorId == doctorId).Select(d => d.PatientId));
 
     public async Task<IReadOnlyList<Patient>> GetDoctorPatientsAsync(int doctorId)
     {
-        var ids = Context.Appointments.Where(a => a.DoctorId == doctorId).Select(a => a.PatientId)
-            .Union(Set.Where(r => r.DoctorId == doctorId).Select(r => r.PatientId))
-            .Union(Context.Prescriptions.Where(p => p.DoctorId == doctorId).Select(p => p.PatientId))
-            .Union(Context.MedicalDocuments.Where(d => d.DoctorId == doctorId).Select(d => d.PatientId));
+        var ids = CarePatientIds(Context, doctorId);
 
         return await Context.Patients.Where(p => ids.Contains(p.Id))
                                      .Include(p => p.User)

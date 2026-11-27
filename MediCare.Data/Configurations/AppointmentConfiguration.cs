@@ -26,5 +26,9 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasDatabaseName("UX_Appointments_Doctor_Slot_Active");
 
         b.HasIndex(a => new { a.PatientId, a.AppointmentDate });
+        b.HasIndex(a => new { a.PatientId, a.AppointmentDate, a.StartTime })
+            .IsUnique()
+            .HasFilter("[Status] IN ('Pending', 'Confirmed')")
+            .HasDatabaseName("UX_Appointments_Patient_Slot_Active");
     }
 }

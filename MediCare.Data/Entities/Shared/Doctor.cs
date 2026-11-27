@@ -15,6 +15,7 @@ public class Doctor
     public decimal ConsultationFee { get; set; }
     public string? ProfileImageUrl { get; set; }
     public string City { get; set; } = string.Empty;
+    public bool HasCustomSchedule { get; set; }
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 }

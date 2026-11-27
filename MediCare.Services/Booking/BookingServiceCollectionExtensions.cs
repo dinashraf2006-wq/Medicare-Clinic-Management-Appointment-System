@@ -14,7 +14,8 @@ public static class BookingServiceCollectionExtensions
 
         services.TryAddSingleton(TimeProvider.System);
         // Member 4 can register their own IDoctorAvailabilityProvider BEFORE this call to replace the default hours.
-        services.TryAddScoped<IDoctorAvailabilityProvider, DefaultDoctorAvailabilityProvider>();
+        services.TryAddScoped<IDoctorAvailabilityProvider, StoredDoctorAvailabilityProvider>();
+        services.AddScoped<DoctorScheduleService>();
         services.AddScoped<IBookingService, BookingService>();
         return services;
     }

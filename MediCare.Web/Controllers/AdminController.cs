@@ -66,7 +66,8 @@ public class AdminController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateDateRange(DateTime startDate, DateTime endDate)
+    [ValidateAntiForgeryToken]
+    public IActionResult UpdateDateRange(DateTime startDate, DateTime endDate)
     {
         return RedirectToAction(nameof(Analytics), new { startDate, endDate });
     }

@@ -1,3 +1,4 @@
+using MediCare.Data;
 using MediCare.Data.Entities;
 using MediCare.Data.Repositories;
 using MediCare.Services.Common;
@@ -29,20 +30,22 @@ public class BookingService : IBookingService
     public const string SlotTakenMessage = "Sorry, this slot was just booked by another patient. Please pick another time.";
 
     private readonly IUnitOfWork _uow;
+    private readonly ApplicationDbContext _db;
     private readonly IDoctorAvailabilityProvider _availability;
     private readonly BookingOptions _options;
     private readonly TimeProvider _clock;
 
-    public BookingService(IUnitOfWork uow, IDoctorAvailabilityProvider availability, BookingOptions options, TimeProvider clock)
+    public BookingService(IUnitOfWork uow, IDoctorAvailabilityProvider availability, BookingOptions options, TimeProvider clock, ApplicationDbContext db)
     {
         _uow = uow;
+        _db = db;
         _availability = availability;
         _options = options;
         _clock = clock;
     }
 
     /// <summary>Clinic local time (appointments are stored as local date + time).</summary>
-    private DateTime Now => _clock.GetLocalNow().DateTime;
+    private DateTime Now => _options.ClinicNow(_clock);
 
     // ---------------- doctors ----------------
 
@@ -115,6 +118,9 @@ public class BookingService : IBookingService
             return ServiceResult.Fail("This doctor does not exist.");
 
         var now = Now;
+        if (start.Kind != DateTimeKind.Unspecified)
+            return ServiceResult.Fail("Choose a time shown in the clinic calendar.");
+
         if (start < now + _options.MinLeadTime)
             return ServiceResult.Fail("This time has already passed. Please choose a later slot.");
 
@@ -146,6 +152,10 @@ public class BookingService : IBookingService
         if (notes is { Length: > MaxNotesLength })
             return ServiceResult<int>.Fail($"Notes can be at most {MaxNotesLength} characters.");
 
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        if (!await DoctorScheduleService.LockDoctorAsync(_db, request.DoctorId))
+            return ServiceResult<int>.Fail("This doctor does not exist.");
+
         var check = await ValidateAsync(patientId, request.DoctorId, request.Start);
         if (!check.Succeeded)
             return ServiceResult<int>.Fail(check.Error!);
@@ -156,7 +166,7 @@ public class BookingService : IBookingService
             PatientId = patientId,
             AppointmentDate = request.Start.Date,
             StartTime = request.Start.TimeOfDay,
-            Status = AppointmentStatus.Pending,
+            Status = _options.ConfirmAutomatically ? AppointmentStatus.Confirmed : AppointmentStatus.Pending,
             PatientNotes = notes
         };
 
@@ -164,13 +174,15 @@ public class BookingService : IBookingService
         try
         {
             await _uow.SaveChangesAsync();
+            await transaction.CommitAsync();
         }
         catch (DbUpdateException)
         {
-            // Two patients confirmed the same slot at the same moment: the unique index
-            // UX_Appointments_Doctor_Slot_Active only lets the first one in.
-            _uow.Appointments.Remove(appointment);
-            return ServiceResult<int>.Fail(SlotTakenMessage);
+            await transaction.RollbackAsync();
+            _db.Entry(appointment).State = EntityState.Detached;
+            var conflict = await ValidateAsync(patientId, request.DoctorId, request.Start);
+            if (!conflict.Succeeded) return ServiceResult<int>.Fail(conflict.Error!);
+            throw;
         }
 
         return ServiceResult<int>.Ok(appointment.Id);

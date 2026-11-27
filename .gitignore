@@ -426,3 +426,6 @@ FodyWeavers.xsd
 
 # Official VS Code C# Dev Kit Extension exclusion
 #*.lscache
+
+/MediCare.Web/App_Data/medicare-local.sqlite3*
+/MediCare.Web/App_Data/demo/

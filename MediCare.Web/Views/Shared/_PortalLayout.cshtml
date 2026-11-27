@@ -7,6 +7,7 @@
 *@
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
+@inject IWebHostEnvironment HostEnvironment
 @{
     var portal = ViewData["Portal"] as string ?? "doctor";
     var isDoctor = portal == "doctor";
@@ -20,7 +21,7 @@
         ? new (string Key, string Icon, string Text, string Href)[]
         {
             ("dashboard", "bi-grid", "Dashboard", "#"),
-            ("schedule", "bi-calendar3", "My Schedule", "#"),
+            ("schedule", "bi-calendar3", "My Schedule", "/Doctor/Schedule"),
             ("appointments", "bi-clock", "Appointments", "#"),
             ("patients", "bi-people", "Patients", "#"),
             ("records", "bi-file-earmark-medical", "Medical Records", "/Doctor/MedicalRecords"),
@@ -42,7 +43,7 @@
             ("billing", "bi-credit-card", "Billing & Payments", "#"),
             ("messages", "bi-chat-left", "Messages", "#"),
             ("articles", "bi-journal-text", "Health Articles", "#"),
-            ("settings", "bi-gear", "Settings", "#")
+            ("profile", "bi-person-circle", "My Profile", "/Patient/Profile")
         };
 }
 <!DOCTYPE html>
@@ -67,7 +68,7 @@
             <span>MediCare<span class="mr-brand-dot">.</span></span>
         </a>
         <nav class="mr-nav">
-            @foreach (var item in nav)
+            @foreach (var item in nav.Where(item => item.Href != "#"))
             {
                 <a class="mr-nav-link @(item.Key == active ? "active" : "")" href="@item.Href">
                     <i class="bi @item.Icon"></i><span>@item.Text</span>
@@ -94,7 +95,9 @@
             </div>
             <div class="ms-auto d-flex align-items-center gap-2">
                 <span class="mr-chip d-none d-md-inline-flex"><i class="bi bi-calendar3"></i>@DateTime.Now.ToString("ddd, MMM d, yyyy")</span>
-                <button class="btn mr-icon-btn" type="button" aria-label="Notifications"><i class="bi bi-bell"></i></button>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button class="btn mr-icon-btn" type="submit" aria-label="Log out"><i class="bi bi-box-arrow-right"></i></button>
+                </form>
                 <div class="mr-topbar-user">
                     <span class="mr-avatar mr-avatar-sm" style="background:@MedicalRecordsDisplay.AvatarColor(fullName)">@MedicalRecordsDisplay.Initials(fullName)</span>
                     <div class="d-none d-sm-block lh-sm">
@@ -106,6 +109,10 @@
         </header>
 
         <main class="mr-content">
+            @if (HostEnvironment.IsEnvironment("Demo"))
+            {
+                <p class="alert alert-info">Public demo · Fictional appointments. Do not enter personal or medical information.</p>
+            }
             @if (TempData["ErrorMessage"] is string error)
             {
                 <div class="alert alert-danger d-flex align-items-center gap-2"><i class="bi bi-exclamation-circle"></i>@error</div>

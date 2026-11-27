@@ -1,9 +1,9 @@
-﻿@model MediCare.Web.Models.Doctors.DoctorDetailsViewModel
+@model MediCare.Web.Models.Doctors.DoctorDetailsViewModel
 
 @{
     ViewData["Title"] = Model.FullName;
 
-    var bookUrl = Url.Action("Book", "Patient", new { id = Model.Id });
+    var bookUrl = Url.Action("Doctor", "PatientBooking", new { doctorId = Model.Id });
     var bookingTargetUrl = User.Identity?.IsAuthenticated == true
         ? bookUrl
         : Url.Action("Login", "Account", new { returnUrl = bookUrl });
@@ -85,7 +85,7 @@
                     </a>
 
                     <div class="cancellation-note text-center mt-3">
-                        <i class="bi bi-shield-check me-1"></i> Free cancellation up to 24h before
+                        <i class="bi bi-shield-check me-1"></i> Free cancellation up to 2 hours before
                     </div>
                 </aside>
             </div>

@@ -1,4 +1,4 @@
-﻿@model MediCare.Web.Models.Doctors.DoctorSearchViewModel
+@model MediCare.Web.Models.Doctors.DoctorSearchViewModel
 
 @section Styles {
     <link rel="stylesheet" href="~/css/doctors-search.css" asp-append-version="true" />
@@ -179,7 +179,7 @@
 
                                     <div class="d-flex justify-content-lg-end gap-2">
                                         <a asp-action="Details" asp-route-id="@doctor.Id" class="btn btn-outline-secondary btn-sm p-2 rounded-pill" style="border-color: var(--shefa-line); color: var(--shefa-navy)">View profile</a>
-                                        <a href="#" class="btn shefa-btn-primary btn-sm px-4 fw-semibold shadow-sm">Book now</a>
+                                        <a asp-controller="PatientBooking" asp-action="Doctor" asp-route-doctorId="@doctor.Id" class="btn shefa-btn-primary btn-sm px-4 fw-semibold shadow-sm">Book now</a>
                                     </div>
                                 </div>
                             </div>

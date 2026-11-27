@@ -31,8 +31,9 @@ public class PatientMedicalRecordsController : MedicalRecordsControllerBase
     [HttpPost("Upload")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(12 * 1024 * 1024)]
-    public async Task<IActionResult> Upload([Bind(Prefix = "Upload")] UploadDocumentViewModel model)
+    public async Task<IActionResult> Upload([Bind(Prefix = "Upload")] UploadDocumentViewModel model, [FromServices] IWebHostEnvironment environment)
     {
+        if (environment.IsEnvironment("Demo")) return NotFound();
         var patientId = await CurrentPatientIdAsync();
         if (patientId is null) return MissingProfile();
 

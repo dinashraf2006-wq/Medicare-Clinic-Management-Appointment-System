@@ -17,6 +17,11 @@ public interface IDoctorAvailabilityProvider
 public class BookingOptions
 {
     /// <summary>Length of one appointment.</summary>
+    public TimeZoneInfo ClinicTimeZone { get; set; } = TimeZoneInfo.Local;
+    public bool ConfirmAutomatically { get; set; }
+
+    public DateTime ClinicNow(TimeProvider clock) => TimeZoneInfo.ConvertTime(clock.GetUtcNow(), ClinicTimeZone).DateTime;
+
     public TimeSpan SlotLength { get; set; } = TimeSpan.FromMinutes(30);
 
     /// <summary>How far ahead patients may book.</summary>

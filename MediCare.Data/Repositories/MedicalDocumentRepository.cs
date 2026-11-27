@@ -45,10 +45,7 @@ public class MedicalDocumentRepository : GenericRepository<MedicalDocument>, IMe
     public async Task<IReadOnlyList<MedicalDocument>> GetForDoctorAsync(
         int doctorId, DocumentType? type, string? search, int take = 100)
     {
-        var patientIds = Context.Appointments.Where(a => a.DoctorId == doctorId).Select(a => a.PatientId)
-            .Union(Context.MedicalRecords.Where(r => r.DoctorId == doctorId).Select(r => r.PatientId))
-            .Union(Context.Prescriptions.Where(p => p.DoctorId == doctorId).Select(p => p.PatientId))
-            .Union(Set.Where(d => d.DoctorId == doctorId).Select(d => d.PatientId));
+        var patientIds = MedicalRecordRepository.CarePatientIds(Context, doctorId);
 
         var query = Set.Where(d => patientIds.Contains(d.PatientId));
 

@@ -1,4 +1,4 @@
-﻿using MediCare.Services.Doctors;
+using MediCare.Services.Doctors;
 using MediCare.Web.Models.Doctors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,7 +52,7 @@ namespace MediCare.Web.Controllers.Doctors
                 Bio = string.IsNullOrWhiteSpace(doctor.Bio)
                     ? $"{doctor.FullName} is an experienced {doctor.SpecializationName} specialist dedicated to clear, patient-centered care and evidence-based treatment."
                     : doctor.Bio,
-                ProfileImageUrl = doctor.ProfileImageUrl
+                ProfileImageUrl = doctor.ProfileImageUrl ?? string.Empty
             };
 
             return View(viewModel);

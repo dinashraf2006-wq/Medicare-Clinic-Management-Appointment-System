@@ -5,7 +5,7 @@ namespace MediCare.Web.Models;
 public class CreateAdminViewModel
 {
     [Required]
-    [EmailAddress]
+    [EmailAddress, StringLength(254)]
     public string Email { get; set; } = string.Empty;
 
     [Required]
@@ -15,6 +15,6 @@ public class CreateAdminViewModel
     public string PhoneNumber { get; set; } = string.Empty;
 
     [Required]
-    [MinLength(6)]
+    [StringLength(128, MinimumLength = 10), DataType(DataType.Password)]
     public string Password { get; set; } = string.Empty;
 }

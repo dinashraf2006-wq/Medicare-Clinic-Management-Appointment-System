@@ -178,7 +178,8 @@ public class MedicalRecordService : IMedicalRecordService
     public async Task<Appointment?> GetAppointmentForNoteAsync(int doctorId, int appointmentId)
     {
         var appointment = await _uow.Repository<Appointment>().GetByIdAsync(appointmentId);
-        return appointment is not null && appointment.DoctorId == doctorId ? appointment : null;
+        return appointment is not null && appointment.DoctorId == doctorId &&
+            appointment.Status is AppointmentStatus.Confirmed or AppointmentStatus.Completed ? appointment : null;
     }
 
     // ===================== Patient side =====================

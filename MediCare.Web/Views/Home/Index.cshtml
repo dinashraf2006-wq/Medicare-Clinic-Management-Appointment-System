@@ -1,13 +1,7 @@
-﻿@model MediCare.Web.Models.Home.HomeViewModel
+@model MediCare.Web.Models.Home.HomeViewModel
 
 @{
     ViewData["Title"] = "Healthcare Reimagined";
-}
-
-@{
-    var bookingUrl = Url.Action("Index", "Doctors"); // or your booking controller/action
-    var loginUrl = Url.Action("Login", "Account", new { returnUrl = bookingUrl });
-    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
 @section Styles {
@@ -140,7 +134,7 @@
                             </div>
                         </div>
 
-                        <a href="@(isAuthenticated ? bookingUrl : loginUrl)"
+                        <a asp-controller="PatientBooking" asp-action="Doctor" asp-route-doctorId="@doctor.Id"
                            class="btn shefa-btn-primary w-100 mt-auto text-center">
                             Book Appointment
                         </a>

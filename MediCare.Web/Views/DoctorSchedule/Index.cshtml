@@ -1,0 +1,109 @@
+@model MediCare.Web.Controllers.Booking.DoctorSchedulePage
+@{
+    Layout = "_DoctorPortalLayout";
+    ViewData["Title"] = "My schedule";
+    ViewData["ActiveNav"] = "schedule";
+    var range = Model.Week ? "week" : "day";
+}
+
+<div class="mr-page-header align-items-center">
+    <div>
+        <h1 class="mr-title">My schedule</h1>
+        <p class="mr-subtitle">Review appointments, set working hours, and manage days off.</p>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <input type="date" name="date" aria-label="Agenda date" class="form-control" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+        <select name="range" aria-label="Agenda range" class="form-select">
+            <option value="day" selected="@(!Model.Week)">Day</option>
+            <option value="week" selected="@Model.Week">Week</option>
+        </select>
+        <button class="btn mr-btn-primary" type="submit">Go</button>
+    </form>
+</div>
+
+@if (TempData["ScheduleMessage"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<section class="mr-card mb-4">
+    <h2 class="mr-card-title mb-3">Agenda · @Model.First.ToString("MMM d")@(Model.Week ? $" to {Model.Last:MMM d}" : "")</h2>
+    @if (Model.Agenda.Count == 0)
+    {
+        <p class="mr-muted mb-0">No appointments for this period.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Date and time</th><th>Patient</th><th>Status</th><th>Appointment actions</th></tr></thead>
+                <tbody>
+                @foreach (var item in Model.Agenda)
+                {
+                    <tr>
+                        <td>@item.Start.ToString("ddd, MMM d · h:mm tt")</td>
+                        <td>@item.Patient</td>
+                        <td><span class="mr-badge @BookingDisplay.StatusBadge(item.Status)">@item.Status</span></td>
+                        <td>
+                            @if (item.Start > Model.Now && AppointmentStatus.IsActive(item.Status))
+                            {
+                                <form asp-action="Appointment" asp-route-appointmentId="@item.Id" method="post" class="d-flex gap-2">
+                                    <input type="hidden" name="date" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" />
+                                    <input type="hidden" name="range" value="@range" />
+                                    @if (item.Status == AppointmentStatus.Pending)
+                                    {
+                                        <button type="submit" name="decision" value="confirm" class="btn btn-sm mr-btn-primary">Confirm</button>
+                                    }
+                                    <button type="submit" name="decision" value="cancel" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <section class="mr-card">
+            <h2 class="mr-card-title">Weekly working hours</h2>
+            <p class="mr-muted">Leave both times blank for a day off. Use the calendar’s slot interval.</p>
+            <form asp-action="Hours" method="post">
+                @for (var i = 0; i < Model.Hours.Count; i++)
+                {
+                    var hours = Model.Hours[i];
+                    <div class="row align-items-center g-2 mb-2">
+                        <div class="col-4">@hours.Day<input type="hidden" name="days[@i].Day" value="@hours.Day" /></div>
+                        <div class="col-4"><input type="time" step="1800" class="form-control" aria-label="@hours.Day opening time" name="days[@i].Start" value="@(hours.Start?.ToString(@"hh\:mm"))" /></div>
+                        <div class="col-4"><input type="time" step="1800" class="form-control" aria-label="@hours.Day closing time" name="days[@i].End" value="@(hours.End?.ToString(@"hh\:mm"))" /></div>
+                    </div>
+                }
+                <button class="btn mr-btn-primary mt-2" type="submit">Save hours</button>
+            </form>
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="mr-card">
+            <h2 class="mr-card-title">Vacation days</h2>
+            <form asp-action="Vacation" method="post" class="d-flex gap-2 my-3">
+                <input type="date" name="date" min="@Model.Today.ToString("yyyy-MM-dd")" required aria-label="Vacation date" class="form-control" />
+                <button class="btn mr-btn-primary" type="submit">Add</button>
+            </form>
+            @if (Model.Vacation.Count == 0)
+            {
+                <p class="mr-muted mb-0">No upcoming vacation days.</p>
+            }
+            @foreach (var day in Model.Vacation)
+            {
+                <form asp-action="RemoveVacation" method="post" class="d-flex justify-content-between align-items-center border-top py-2">
+                    <input name="date" type="hidden" value="@day.ToString("yyyy-MM-dd")" />
+                    <span>@day.ToString("ddd, MMM d, yyyy")</span>
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Remove</button>
+                </form>
+            }
+        </section>
+    </div>
+</div>

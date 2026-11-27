@@ -1,4 +1,6 @@
-﻿@{
+@inject IWebHostEnvironment HostEnvironment
+@{
+    var isDemo = HostEnvironment.IsEnvironment("Demo");
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var isDoctorLanding = currentController == "Home" && currentAction == "ForDoctors";
@@ -27,7 +29,11 @@
     <link rel="stylesheet" href="~/MediCare.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @if (!User.Identity.IsAuthenticated)
+    @if (isDemo)
+    {
+        <p class="alert alert-info rounded-0 text-center mb-0">Public demo · Fictional doctors and appointments</p>
+    }
+    @if (User.Identity?.IsAuthenticated != true)
         {
             <header class="shefa-navbar sticky-top d-flex align-items-center">
                 <nav class="navbar navbar-expand-lg navbar-light container py-0 ">
@@ -100,8 +106,11 @@
                         }
                         <!-- Right: Auth Buttons -->
                         <div class="d-flex align-items-center gap-3 pb-3 pb-lg-0 ms-auto">
-                            <a asp-controller="Account" asp-action="Login" class="shefa-btn-login">Log In</a>
-                            <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary">Sign Up</a>
+                            @if (!isDemo)
+                            {
+                                <a asp-controller="Account" asp-action="Login" class="shefa-btn-login">Log In</a>
+                            }
+                            <a asp-controller="Account" asp-action="Register" class="btn shefa-btn-primary">@(isDemo ? "Try the demo" : "Sign Up")</a>
                         </div>
                     </div>
                 </nav>

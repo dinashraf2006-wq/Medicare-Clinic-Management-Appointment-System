@@ -1,0 +1,16 @@
+@model string
+@{
+    ViewData["Title"] = "Try the demo";
+}
+<section class="container py-5">
+    <div class="mx-auto" style="max-width: 32rem">
+        <h1>Try the patient portal</h1>
+        <p>Explore sample doctors, book a test appointment, or cancel it from My Appointments. All doctors and appointments in this preview are fictional.</p>
+        <p>The demo creates a temporary patient account for this browser. No email, password, or personal information is needed.</p>
+        <form asp-controller="Account" asp-action="StartDemo" method="post">
+            <input type="hidden" name="returnUrl" value="@Model" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <button class="btn shefa-btn-primary" type="submit">Start demo</button>
+        </form>
+    </div>
+</section>

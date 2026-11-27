@@ -1,0 +1,41 @@
+@model MediCare.Web.Controllers.PatientProfileInput
+@inject IWebHostEnvironment HostEnvironment
+@{
+    Layout = "_PatientPortalLayout";
+    ViewData["Title"] = "My profile";
+    ViewData["ActiveNav"] = "profile";
+}
+<section class="mr-card" style="max-width: 40rem">
+    <h1 class="mr-title mb-3">My profile</h1>
+    @if (HostEnvironment.IsEnvironment("Demo"))
+    {
+        <dl class="mb-0">
+            <dt>Name</dt>
+            <dd>@Model.FullName</dd>
+            <dt>Account type</dt>
+            <dd>Temporary demo patient</dd>
+        </dl>
+    }
+    else
+    {
+        @if (TempData["ProfileSaved"] is true)
+        {
+            <p class="alert alert-success">Profile updated.</p>
+        }
+        <p>Account email: @ViewData["Email"]</p>
+        <form asp-action="Index" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label">Full name</label>
+                <input asp-for="FullName" autocomplete="name" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label">Phone</label>
+                <input asp-for="PhoneNumber" autocomplete="tel" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn mr-btn-primary">Save profile</button>
+        </form>
+    }
+</section>
